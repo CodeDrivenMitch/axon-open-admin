@@ -5,6 +5,7 @@ import com.insidion.axon.openadmin.model.toId
 import com.insidion.axon.openadmin.tokens.TokenProvider
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
+import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry
 import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
@@ -35,7 +36,6 @@ class ProcessorMetricsService(
 
 
     @Scheduled(fixedRate = 2000, initialDelay = 1000)
-    @PostConstruct
     fun updateMetrics() {
         val time = Instant.now()
 
@@ -62,7 +62,7 @@ class ProcessorMetricsService(
         }
     }
 
-    private fun registerTokenAsGauge(it: GenericTokenEntry<*>, processorId: ProcessorId) {
+    private fun registerTokenAsGauge(it: AbstractTokenEntry<*>, processorId: ProcessorId) {
         if (meterRegistry == null) {
             return
         }

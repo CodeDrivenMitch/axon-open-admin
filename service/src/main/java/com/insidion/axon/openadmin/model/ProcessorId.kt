@@ -1,6 +1,6 @@
 package com.insidion.axon.openadmin.model
 
-import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
+import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry
 
 data class ProcessorId(
     val name: String,
@@ -8,4 +8,4 @@ data class ProcessorId(
 )
 
 
-fun GenericTokenEntry<*>.toId() = ProcessorId(processorName, segment)
+fun AbstractTokenEntry<*>.toId() = ProcessorId(processorName, segment)

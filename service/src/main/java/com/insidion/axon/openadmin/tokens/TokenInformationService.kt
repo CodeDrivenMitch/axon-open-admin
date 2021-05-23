@@ -6,6 +6,7 @@ import com.insidion.axon.openadmin.model.ProcessorId
 import com.insidion.axon.openadmin.model.TokenInformationDTO
 import com.insidion.axon.openadmin.model.SegmentDTO
 import org.axonframework.eventhandling.ReplayToken
+import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry
 import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
@@ -37,7 +38,7 @@ class TokenInformationService(
     }
 
     private fun segmentList(
-        segments: List<GenericTokenEntry<*>>,
+        segments: List<AbstractTokenEntry<*>>,
         headIndex: Long
     ) = segments.map {
         val token = it.getToken(serializer)

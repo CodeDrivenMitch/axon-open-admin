@@ -1,5 +1,6 @@
 package com.insidion.axon.openadmin.tokens
 
+import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry
 import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
 import org.axonframework.eventhandling.tokenstore.jdbc.JdbcTokenStore
 import org.axonframework.eventhandling.tokenstore.jdbc.TokenSchema
@@ -45,7 +46,7 @@ class JdbcTokenProvider(
         table = schema.tokenTable()
     }
 
-    override fun getProcessors(): List<GenericTokenEntry<*>> {
+    override fun getProcessors(): List<AbstractTokenEntry<*>> {
         val sql = "SELECT $columns FROM $table"
 
         val connection = dataSource.connection
