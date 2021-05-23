@@ -21,7 +21,7 @@ export function StopAction({row}: { row: ProcessorRowData }) {
         setLoading(true)
         await stopProcessor(row.processorName, row.segment)
         setLoading(false)
-    }, [row.key])
+    }, [row.processorName, row.segment])
 
     return <Button type="default" loading={loading} onClick={onStopAction} disabled={row.owner == null}>
         Stop

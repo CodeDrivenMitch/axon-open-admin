@@ -18,8 +18,9 @@ function mapProcessorInformationToDataSource(processorInformation: ProcessorInfo
                 owner: segment.owner,
                 tokenType: segment.tokenType,
                 replaying: segment.replaying,
-                positionRate1m: segment.statistics.positionRate1m?.toFixed(2),
-                positionRate5m: segment.statistics.positionRate5m?.toFixed(2),
+                secondsToHead: ((segment.statistics?.seconds60?.minutesToHead ?? 0) * 60).toFixed(2),
+                positionRate1m: segment.statistics?.seconds60?.positionRate?.toFixed(2),
+                positionRate5m: segment.statistics?.seconds10.positionRate?.toFixed(2),
                 status: segment.replaying ? 'Replaying' : (segment.owner ? 'Running' : 'Unclaimed'),
                 statusColor: segment.replaying ? 'orange' : (segment.owner ? 'green' : 'red'),
             }
@@ -32,7 +33,7 @@ function Processors() {
 
     useEffect(() => {
         const interval = setInterval(async () => {
-            const result = await fetch(contextPath + "/processors")
+            const result = await fetch(contextPath + "/tokens")
             if (result.ok) {
                 setInfo(await result.json())
             } else {
@@ -53,8 +54,8 @@ function Processors() {
                 <Table.Column title="Type" key="tokenType" dataIndex="tokenType"/>
                 <Table.Column title="Current index" key="currentIndex" dataIndex="currentIndex"/>
                 <Table.Column title="Behind" key="behind" dataIndex="behind"/>
-                <Table.Column title="Rate (1m)" key="positionRate1m" dataIndex="positionRate1m"/>
-                <Table.Column title="Rate (5m)" key="positionRate5m" dataIndex="positionRate5m"/>
+                <Table.Column title="Events/m (1m)" key="positionRate1m" dataIndex="positionRate1m"/>
+                <Table.Column title="Events/m (5m)" key="positionRate5m" dataIndex="positionRate5m"/>
                 <Table.Column title="Time to head" key="timeToHead"
                               render={row => <TimeToHeadTag behind={row.behind} secondsToHead={row.secondsToHead} replaying={row.replaying}/>}/>
                 <Table.Column title="Actions" key="actions"

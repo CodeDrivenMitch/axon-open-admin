@@ -1,36 +1,45 @@
 package com.insidion.axon.openadmin
 
+import com.insidion.axon.openadmin.model.TokenInformationDTO
+import com.insidion.axon.openadmin.processors.ProcessorStatusService
+import com.insidion.axon.openadmin.tokens.TokenInformationService
 import org.axonframework.config.EventProcessingModule
 import org.axonframework.eventhandling.TrackingEventProcessor
-import org.axonframework.springboot.EventProcessorProperties
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.lang.Thread.sleep
 
 @RestController
 @RequestMapping("\${axon.admin.base-url:axon-admin}")
 class AxonOpenAdminEndpoint(
-    private val axonOpenAdminTokenStore: ProcessorInformationService,
+    private val axonOpenAdminTokenStore: TokenInformationService,
+    private val processorStatusService: ProcessorStatusService,
     private val eventProcessingModule: EventProcessingModule,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @GetMapping("/processors")
-    fun getProcessors(): ProcessorInformationDTO {
+    @GetMapping("/tokens")
+    fun getTokens(): TokenInformationDTO {
         return axonOpenAdminTokenStore.getProcessors()
     }
+
+    @GetMapping("/processors")
+    fun getProcessors() = processorStatusService.getStatus()
 
     @PostMapping("/processor/{processorName}/split/{segmentId}")
     fun split(@PathVariable processorName: String, @PathVariable segmentId: Int): ResponseEntity<Unit> {
         return runOnProcessorWithResponse(processorName) {
             val status = it.processingStatus()[segmentId]
             val replayAfter = status?.isReplaying == true // When splitting, axon reverts to a normal token for some reason
-            logger.warn("Splitting segment")
+            if (!it.isRunning) {
+                logger.error("Will not split segment since it is not running on this node")
+                return@runOnProcessorWithResponse false
+            }
             it.splitSegment(segmentId).get()
             if (replayAfter) {
                 if (it.isRunning) {
@@ -47,17 +56,18 @@ class AxonOpenAdminEndpoint(
     fun merge(@PathVariable processorName: String, @PathVariable segmentId: Int): ResponseEntity<Unit> {
         return runOnProcessorWithResponse(processorName) {
             logger.warn("Starting merge")
-            it.start()
-            logger.warn("Will wait 5 seconds to let the eventprocessor start")
-            sleep(5000) // Wait for it to start
+            if (!it.isRunning) {
+                logger.error("Will not merge segment since it is not running on this node")
+                return@runOnProcessorWithResponse false
+            }
             logger.warn("Attempting merge!")
             val status = it.processingStatus()[segmentId]
             if (status != null) {
-                val mergableSegment = status.segment.mergeableSegmentId()
-                it.mergeSegment(mergableSegment).get()
+                it.mergeSegment(segmentId).get()
                 logger.warn("Merge successful")
             } else {
                 logger.warn("Merge failed")
+                return@runOnProcessorWithResponse false
             }
             true
         }

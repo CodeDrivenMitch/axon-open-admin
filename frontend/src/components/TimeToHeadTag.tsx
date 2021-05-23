@@ -5,11 +5,15 @@ export function TimeToHeadTag({behind, secondsToHead, replaying}: { behind: numb
     if (!behind) {
         return <Tag color="green">Up-to-date</Tag>
     }
-    if (secondsToHead == null) {
+    if (secondsToHead == null || !(secondsToHead > 0)) {
         return <Tag color="red">Infinite</Tag>
     }
-    const minutes = Math.floor(secondsToHead / 60)
+    const hours = Math.floor(secondsToHead / 3600)
+    const minutes = Math.floor((secondsToHead - hours * 3600) / 60)
     const seconds = secondsToHead % 60
     const color = replaying || secondsToHead < 120 ? 'orange' : 'red';
-    return <Tag color={color}>`${minutes ? minutes + 'm' : ''}${seconds}s`</Tag>
+    if(hours > 48) {
+        return <Tag color={color}>Infinite</Tag>
+    }
+    return <Tag color={color}>{`${hours ? hours + 'h' : ''}${minutes ? minutes + 'm' : ''}${seconds}s`}</Tag>
 }

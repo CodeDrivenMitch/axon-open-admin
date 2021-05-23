@@ -19,11 +19,19 @@ export interface Segment {
     currentIndex: number
     replaying: boolean
     behind: number
-    statistics: Statistics
+    statistics: Statistics | null
     secondsToHead: number | null
 }
 
 export interface Statistics {
-    positionRate1m: number | null,
-    positionRate5m: number | null,
+    seconds10: StatisticForTime
+    seconds60: StatisticForTime
+    seconds300: StatisticForTime
+}
+
+
+export interface StatisticForTime {
+    seconds: number
+    positionRate: number | null,
+    minutesToHead: number | null,
 }

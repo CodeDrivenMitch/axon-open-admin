@@ -6,12 +6,15 @@ import com.insidion.axon.openadmin.tokens.TokenProvider
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
+import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import javax.annotation.PostConstruct
+import kotlin.math.round
+import kotlin.math.truncate
 
 /**
  * We keep track here of the amount of events processed over a certain amount of time.
@@ -23,26 +26,39 @@ import javax.annotation.PostConstruct
 class ProcessorMetricsService(
     private val tokenProvider: TokenProvider,
     private val serializer: Serializer,
-    private val meterRegistry: MeterRegistry?
+    private val meterRegistry: MeterRegistry?,
+    private val eventStore: EventStore,
 ) {
     private val metricMap: MutableMap<ProcessorId, MutableList<Measurement>> = mutableMapOf()
     private val statisticMap: MutableMap<ProcessorId, Statistics> = mutableMapOf()
+    private val headMeasurements: MutableList<Measurement> = mutableListOf()
 
 
-    @Scheduled(fixedRate = 5000, initialDelay = 1000)
+    @Scheduled(fixedRate = 2000, initialDelay = 1000)
     @PostConstruct
     fun updateMetrics() {
         val time = Instant.now()
+
+        val headToken = eventStore.createHeadToken()
+        val headPosition = headToken?.position()?.orElse(0) ?: 0
+        headMeasurements.add(Measurement(time, headPosition))
+        headMeasurements.removeIf { m -> m.time.isBefore(time.minus(5, ChronoUnit.MINUTES)) }
+
         tokenProvider.getProcessors().map {
-            val position = it.getToken(serializer)?.position()?.orElse(0)
+            val token = it.getToken(serializer)
             val id = it.toId()
+            val position = token?.position()?.orElse(0) ?: 0
+            val lastKnownPosition: Long = metricMap[id]?.let { mm -> mm.maxByOrNull { mv -> mv.value }?.value ?: 0} ?: 0
+            if(it.owner == null || position < lastKnownPosition) {
+                metricMap.remove(id)
+            }
             val metricList = metricMap.computeIfAbsent(id) { processorId ->
                 registerTokenAsGauge(it, processorId)
                 mutableListOf()
             }
-            metricList.add(Measurement(time, position ?: 0))
+            metricList.add(Measurement(time, position))
             metricList.removeIf { m -> m.time.isBefore(time.minus(5, ChronoUnit.MINUTES)) }
-            statisticMap[id] = computeStatistics(id)
+            statisticMap[id] = computeStatistics(id, position, headPosition)
         }
     }
 
@@ -50,15 +66,15 @@ class ProcessorMetricsService(
         if (meterRegistry == null) {
             return
         }
-        Gauge.builder("axon.openadmin.processor.${it.processorName}.${it.segment}.position.rate.1m") { getStatistics(processorId)?.positionRate1m }
-            .baseUnit("position increase per second")
+        Gauge.builder("axon.openadmin.processor.${it.processorName}.${it.segment}.position.rate.1m") { getStatistics(processorId)?.seconds60?.positionRate }
+            .baseUnit("position increase per minute")
             .description("Increase of the event processor position for the last minute. Note that this number is not necessarily the amount of events processed, since gaps can exist in the event-store or part of the events are processed by another thread.")
 
             .register(meterRegistry)
 
 
-        Gauge.builder("axon.openadmin.processor.${it.processorName}.${it.segment}.position.rate.5m") { getStatistics(processorId)?.positionRate5m }
-            .baseUnit("events per second")
+        Gauge.builder("axon.openadmin.processor.${it.processorName}.${it.segment}.position.rate.5m") { getStatistics(processorId)?.seconds300?.positionRate }
+            .baseUnit("events per minute")
             .description("Increase of the event processor position for the last five minutes. Note that this number is not necessarily the amount of events processed, since gaps can exist in the event-store or part of the events are processed by another thread.")
             .register(meterRegistry)
     }
@@ -67,13 +83,28 @@ class ProcessorMetricsService(
         return statisticMap[id]
     }
 
-    private fun computeStatistics(id: ProcessorId): Statistics {
+    private fun computeStatistics(id: ProcessorId, position: Long?, headPosition: Long): Statistics {
         val values = metricMap[id]!!
-        val time = Instant.now()
-
+        val behind = headPosition - (position ?: 0)
         return Statistics(
-            getDiff(values.filter { it.time.isAfter(time.minus(60, ChronoUnit.SECONDS)) }),
-            getDiff(values.filter { it.time.isAfter(time.minus(300, ChronoUnit.SECONDS)) }),
+            behind,
+            calculateForTimeInSeconds(values, 10, behind),
+            calculateForTimeInSeconds(values, 60, behind),
+            calculateForTimeInSeconds(values, 300, behind),
+        )
+    }
+
+    fun calculateForTimeInSeconds(measurements: MutableList<Measurement>, seconds: Long, behind: Long): StatisticForSeconds {
+        val time = Instant.now()
+        val positionRate = getDiff(measurements.filter { it.time.isAfter(time.minus(seconds, ChronoUnit.SECONDS)) })
+        val ingestRate = getDiff(headMeasurements.filter { it.time.isAfter(time.minus(seconds, ChronoUnit.SECONDS)) })
+        val effectiveRate = truncate((positionRate - ingestRate) * 100) / 100
+        return StatisticForSeconds(
+            seconds,
+            ingestRate,
+            positionRate,
+            effectiveRate,
+            if (behind > 0 && effectiveRate > 0) behind / effectiveRate else null
         )
     }
 
@@ -82,10 +113,15 @@ class ProcessorMetricsService(
         val first = values.minByOrNull { it.time } ?: return 0.0
         val lastValue = last.value
         val firstValue = first.value
-        if (lastValue < firstValue) {
-            return firstValue / ChronoUnit.SECONDS.between(first.time, last.time).toDouble()
+        val value = if (lastValue < firstValue) {
+            firstValue / ChronoUnit.SECONDS.between(first.time, last.time).toDouble()
+        } else {
+            (lastValue - firstValue) / ChronoUnit.SECONDS.between(first.time, last.time).toDouble()
         }
-        return (lastValue - firstValue) / ChronoUnit.SECONDS.between(first.time, last.time).toDouble()
+        if (value.isNaN()) {
+            return 0.0
+        }
+        return value.times(60)
     }
 
     data class Measurement(

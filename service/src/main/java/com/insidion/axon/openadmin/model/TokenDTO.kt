@@ -1,8 +1,8 @@
-package com.insidion.axon.openadmin
+package com.insidion.axon.openadmin.model
 
 import com.insidion.axon.openadmin.metrics.Statistics
 
-data class ProcessorInformationDTO(
+data class TokenInformationDTO(
     val nodeId: String,
     val headIndex: Long,
     val processors: List<ProcessorDTO>
@@ -23,5 +23,5 @@ data class SegmentDTO(
     val replaying: Boolean?,
     val behind: Long,
     val statistics: Statistics?,
-    val secondsToHead: Long?,
+    val secondsToHead: Double?,
 )

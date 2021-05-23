@@ -1,24 +1,24 @@
-package com.insidion.axon.openadmin
+package com.insidion.axon.openadmin.tokens
 
 import com.insidion.axon.openadmin.metrics.ProcessorMetricsService
-import com.insidion.axon.openadmin.metrics.Statistics
+import com.insidion.axon.openadmin.model.ProcessorDTO
 import com.insidion.axon.openadmin.model.ProcessorId
-import com.insidion.axon.openadmin.tokens.TokenProvider
+import com.insidion.axon.openadmin.model.TokenInformationDTO
+import com.insidion.axon.openadmin.model.SegmentDTO
 import org.axonframework.eventhandling.ReplayToken
 import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
 import org.springframework.stereotype.Service
-import kotlin.math.roundToLong
 
 @Service
-class ProcessorInformationService(
+class TokenInformationService(
     private val tokenProvider: TokenProvider,
     private val eventStore: EventStore,
     private val serializer: Serializer,
     private val processorMetricsService: ProcessorMetricsService,
 ) {
-    fun getProcessors(): ProcessorInformationDTO {
+    fun getProcessors(): TokenInformationDTO {
         val headIndex = eventStore.createHeadToken().position().orElse(0)
         val processors = tokenProvider.getProcessors()
             .groupBy { it.processorName }
@@ -33,7 +33,7 @@ class ProcessorInformationService(
             }
             .sortedBy { it.name }
 
-        return ProcessorInformationDTO(tokenProvider.getNodeId(), headIndex, processors)
+        return TokenInformationDTO(tokenProvider.getNodeId(), headIndex, processors)
     }
 
     private fun segmentList(
@@ -42,23 +42,18 @@ class ProcessorInformationService(
     ) = segments.map {
         val token = it.getToken(serializer)
 
-        val currentIndex = token.position()?.orElse(0) ?: 0
+        val currentIndex = token?.position()?.orElse(0) ?: 0
         val behind = headIndex - currentIndex
         val statistics = processorMetricsService.getStatistics(ProcessorId(it.processorName, it.segment))
         SegmentDTO(
             currentIndex = currentIndex,
-            tokenType = token::class.simpleName,
+            tokenType = token?.let { t -> t::class.java.simpleName },
             owner = it.owner,
             segment = it.segment,
             replaying = ReplayToken.isReplay(token),
             behind = behind,
             statistics = statistics,
-            secondsToHead = computeSecondsToHead(behind, statistics)
+            secondsToHead = statistics?.seconds10?.minutesToHead?.times(60)
         )
     }.sortedBy { it.segment }
-
-    private fun computeSecondsToHead(behind: Long, statistics: Statistics?) =
-        if (behind == 0L || statistics?.positionRate5m == null) null else {
-            (behind / statistics.positionRate5m).roundToLong()
-        }
 }

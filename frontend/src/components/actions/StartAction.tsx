@@ -19,9 +19,9 @@ export function StartAction({row}: { row: ProcessorRowData }) {
 
     const onStartAction = useCallback(async () => {
         setLoading(true)
-        await startProcessor(row.processorName, row.segment)
+        await startProcessor(row.processorName)
         setLoading(false)
-    }, [row.key])
+    }, [row.processorName])
 
     return <Button type="default" loading={loading} onClick={onStartAction} disabled={row.owner != null}>
         Start
