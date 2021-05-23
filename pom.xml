@@ -7,29 +7,7 @@
 
     <groupId>com.insidion</groupId>
     <artifactId>axon-open-admin-parent</artifactId>
-    <version>0.0.1</version>
-
-    <description>This Spring Boot starter project contains an administration interface for Axon Framework, including managing its tracking tokens.</description>
-    <url>https://github.com/Morlack/axon-open-admin</url>
-    <licenses>
-        <license>
-            <name>MIT License</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Mitchell Herrijgers</name>
-            <email>mitchellherrijgers@gmail.com</email>
-            <organization>Insidion</organization>
-            <organizationUrl>https://insidion.com</organizationUrl>
-        </developer>
-    </developers>
-    <scm>
-        <connection>scm:git:git://github.com/Morlack/axon-open-admin.git</connection>
-        <developerConnection>scm:git:git://github.com/Morlack/axon-open-admin.git</developerConnection>
-        <url>https://github.com/Morlack/axon-open-admin</url>
-    </scm>
+    <version>0.0.2-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
