@@ -1,4 +1,4 @@
-# Axon Opem Admin
+# Axon Open Admin
 
 Axon Framework is a great CQRS/Event-Sourcing library. However, it comes with little to no built-in support for managing your tracking tokens or event store. 
 This project aims to fix that problems and provides an administration interface without requiring additional deployments. Just add the Spring Boot starter and it works out of the box!
