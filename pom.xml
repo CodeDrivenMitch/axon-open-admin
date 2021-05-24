@@ -7,7 +7,7 @@
 
     <groupId>com.insidion</groupId>
     <artifactId>axon-open-admin-parent</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
