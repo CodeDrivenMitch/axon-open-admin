@@ -1,18 +1,19 @@
 import store from "../store";
-import {fetchTokens} from "./TokenSlice";
+import {fetchNodeInformation, fetchTokens} from "./TokenSlice";
 
-let interval: any;
-
-function fetchTokensProcess() {
-    store.dispatch(fetchTokens())
-}
+let intervalTokens: any;
+let intervalProcessors: any;
 
 export function startTokenFetching() {
-    interval = setInterval(fetchTokensProcess, 2000)
+    intervalTokens = setInterval(() => store.dispatch(fetchTokens()), 2000)
+    intervalProcessors = setInterval(() => store.dispatch(fetchNodeInformation()), 500)
 }
 
 export function stopTokenFetching() {
-    if (interval) {
-        clearInterval(interval)
+    if (intervalTokens) {
+        clearInterval(intervalTokens)
+    }
+    if (intervalProcessors) {
+        clearInterval(intervalProcessors)
     }
 }

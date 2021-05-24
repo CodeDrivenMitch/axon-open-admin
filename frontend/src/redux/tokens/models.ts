@@ -1,4 +1,20 @@
 
+export interface NodeInformation {
+    nodeId: string
+    lastSeen: number
+    processorStates?: NodeProcessorState[]
+}
+
+export interface NodeProcessorState {
+    name: string,
+    running: boolean,
+    error: boolean,
+    resettable: boolean,
+    activeProcessorThreads?: number
+    availableProcessorThreads?: number
+}
+
+
 export interface TokenInformationSummary {
     nodeId: string
     headIndex: number

@@ -10,7 +10,4 @@ export interface TokenOverviewData {
     replaying: boolean,
     positionRate1m: string | undefined,
     positionRate5m: string | undefined,
-    resettable: boolean,
-    anyNodeRunning: boolean,
-    anyNodeStopped: boolean,
 }

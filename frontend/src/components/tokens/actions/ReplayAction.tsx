@@ -30,7 +30,7 @@ export function ReplayAction({row}: { row: TokenOverviewData }) {
         onCancel={onStopAction}
         okText="Yes"
         cancelText="No"
-    ><Button type="default" loading={loading} disabled={row.owner != null || row.replaying}>
+    ><Button type="default" loading={loading} disabled={row.anyNodeRunning || row.replaying}>
         <DeleteOutlined/>
     </Button>
     </Popconfirm>

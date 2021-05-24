@@ -5,4 +5,6 @@ data class ProcessorStatusDTO(
     val running: Boolean,
     val error: Boolean,
     val resettable: Boolean,
+    val activeProcessorThreads: Int,
+    val availableProcessorThreads: Int,
 )
