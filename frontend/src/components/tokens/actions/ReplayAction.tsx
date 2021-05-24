@@ -1,7 +1,7 @@
 import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
 import {Button, Popconfirm, Popover} from "antd";
-import {contextPath} from "../../context";
+import {contextPath} from "../../../context";
 import {DeleteOutlined} from "@ant-design/icons";
 
 async function replayProcessor(name: string, attempt = 1) {

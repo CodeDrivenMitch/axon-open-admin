@@ -1,7 +1,7 @@
 import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
 import {Button, Popover} from "antd";
-import {contextPath} from "../../context";
+import {contextPath} from "../../../context";
 import {SplitCellsOutlined} from "@ant-design/icons";
 
 async function splitProcessor(name: string, segment: number, attempt = 1) {

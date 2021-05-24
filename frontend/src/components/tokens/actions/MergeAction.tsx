@@ -1,8 +1,8 @@
-import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
 import {Button, Popover} from "antd";
-import {contextPath} from "../../context";
 import {MergeCellsOutlined} from "@ant-design/icons";
+import {contextPath} from "../../../context";
+import {TokenOverviewData} from "../TokenOverviewData";
 
 async function mergeProcessor(name: string, segment: number, attempt = 1) {
     const result = await fetch(`${contextPath}/processor/${name}/merge/${segment}`, {method: 'POST'})

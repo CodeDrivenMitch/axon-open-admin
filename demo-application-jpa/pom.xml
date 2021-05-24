@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>com.insidion</groupId>
-            <artifactId>axon-open-admin</artifactId>
+            <artifactId>axon-open-admin-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
 

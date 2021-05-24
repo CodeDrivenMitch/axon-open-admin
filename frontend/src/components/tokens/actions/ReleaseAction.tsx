@@ -1,8 +1,8 @@
 import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
 import {Button, Popover} from "antd";
-import {contextPath} from "../../context";
 import {SwapOutlined} from "@ant-design/icons";
+import {contextPath} from "../../../context";
 
 async function releaseSegment(name: string, segment: number, attempt = 1) {
     const result = await fetch(`${contextPath}/processor/${name}/release/${segment}`, {method: 'POST'})
