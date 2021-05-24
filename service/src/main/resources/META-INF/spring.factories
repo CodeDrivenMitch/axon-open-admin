@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.insidion.axon.openadmin.AxonOpenAdminAutoConfiguration
+  com.insidion.autoconfigure.AxonOpenAdminAutoConfiguration

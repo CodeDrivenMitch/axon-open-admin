@@ -46,12 +46,12 @@
             <groupId>org.axonframework</groupId>
             <artifactId>axon-spring</artifactId>
             <version>${axon.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <version>1.7.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.axonframework</groupId>

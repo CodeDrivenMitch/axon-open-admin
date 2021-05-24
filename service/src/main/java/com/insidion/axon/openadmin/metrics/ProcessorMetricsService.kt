@@ -6,15 +6,12 @@ import com.insidion.axon.openadmin.tokens.TokenProvider
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.MeterRegistry
 import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry
-import org.axonframework.eventhandling.tokenstore.GenericTokenEntry
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import javax.annotation.PostConstruct
-import kotlin.math.round
 import kotlin.math.truncate
 
 /**

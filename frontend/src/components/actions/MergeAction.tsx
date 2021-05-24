@@ -2,6 +2,7 @@ import {ProcessorRowData} from "../ProcessorRowData";
 import React, {useCallback, useState} from "react";
 import {Button} from "antd";
 import {contextPath} from "../../context";
+import {MergeCellsOutlined} from "@ant-design/icons";
 
 async function mergeProcessor(name: string, segment: number, attempt = 1) {
     const result = await fetch(`${contextPath}/processor/${name}/merge/${segment}`, {method: 'POST'})
@@ -24,6 +25,6 @@ export function MergeAction({row}: { row: ProcessorRowData }) {
     }, [row.processorName, row.segment])
 
     return <Button type="default" loading={loading} onClick={onSplitAction}>
-        Merge
+        <MergeCellsOutlined />
     </Button>
 }

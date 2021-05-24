@@ -6,30 +6,25 @@ import com.insidion.axon.openadmin.tokens.JpaTokenProvider
 import com.insidion.axon.openadmin.tokens.TokenProvider
 import io.micrometer.core.instrument.MeterRegistry
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import org.axonframework.common.jpa.EntityManagerProvider
+import org.axonframework.config.EventProcessingConfiguration
+import org.axonframework.config.EventProcessingModule
 import org.axonframework.eventhandling.tokenstore.TokenStore
 import org.axonframework.eventhandling.tokenstore.jdbc.JdbcTokenStore
 import org.axonframework.eventhandling.tokenstore.jpa.JpaTokenStore
-import org.axonframework.springboot.autoconfig.JdbcAutoConfiguration
-import org.axonframework.springboot.autoconfig.JpaAutoConfiguration
-import org.axonframework.springboot.autoconfig.JpaEventStoreAutoConfiguration
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.EnableScheduling
 import javax.annotation.PostConstruct
-import javax.persistence.EntityManagerFactory
 import javax.sql.DataSource
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ComponentScan("com.insidion.axon.openadmin")
-@EnableScheduling
-class AxonOpenAdminAutoConfiguration(
+@ConditionalOnBean(name = ["eventProcessingModule"])
+class AxonAdminConfiguration (
     @Value("\${server.servlet.context-path:}")
     val contextPath: String
 ) {
@@ -58,3 +53,4 @@ class AxonOpenAdminAutoConfiguration(
     @ConditionalOnMissingBean(TokenStore::class)
     fun tokenProvider() = DummyTokenProvider()
 }
+

@@ -2,6 +2,7 @@ import {ProcessorRowData} from "../ProcessorRowData";
 import React, {useCallback, useState} from "react";
 import {Button, Popover} from "antd";
 import {contextPath} from "../../context";
+import {SwapOutlined} from "@ant-design/icons";
 
 async function releaseSegment(name: string, segment: number, attempt = 1) {
     const result = await fetch(`${contextPath}/processor/${name}/release/${segment}`, {method: 'POST'})
@@ -26,7 +27,7 @@ export function ReleaseAction({row}: { row: ProcessorRowData }) {
     return <Popover content="Releases this segment on the running node so another node can pick it up" placement={"left"}><Button type="default" loading={loading}
                                                                                                                                 onClick={onReleaseAction}
                                                                                                                                 disabled={row.owner == null}>
-        Release segment
+        <SwapOutlined />
     </Button>
     </Popover>
 }

@@ -2,6 +2,7 @@ import {ProcessorRowData} from "../ProcessorRowData";
 import React, {useCallback, useState} from "react";
 import {Button} from "antd";
 import {contextPath} from "../../context";
+import {PlayCircleOutlined} from "@ant-design/icons";
 
 async function startProcessor(name: string, attempt = 1) {
     const result = await fetch(`${contextPath}/processor/${name}/start`, {method: 'POST'})
@@ -24,6 +25,6 @@ export function StartAction({row}: { row: ProcessorRowData }) {
     }, [row.processorName])
 
     return <Button type="default" loading={loading} onClick={onStartAction} disabled={row.owner != null}>
-        Start
+        <PlayCircleOutlined />
     </Button>
 }

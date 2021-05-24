@@ -9,8 +9,6 @@ import {ReleaseAction} from "./ReleaseAction";
 
 export function ActionBar({row}: {row: ProcessorRowData}) {
     return <Space>
-        <StopAction row={row}/>
-        <StartAction row={row}/>
         <SplitAction row={row}/>
         <MergeAction row={row}/>
         <ReleaseAction row={row}/>

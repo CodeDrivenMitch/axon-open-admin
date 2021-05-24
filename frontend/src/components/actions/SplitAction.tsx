@@ -2,6 +2,7 @@ import {ProcessorRowData} from "../ProcessorRowData";
 import React, {useCallback, useState} from "react";
 import {Button} from "antd";
 import {contextPath} from "../../context";
+import {SplitCellsOutlined} from "@ant-design/icons";
 
 async function splitProcessor(name: string, segment: number, attempt = 1) {
     const result = await fetch(`${contextPath}/processor/${name}/split/${segment}`, {method: 'POST'})
@@ -24,6 +25,6 @@ export function SplitAction({row}: { row: ProcessorRowData }) {
     }, [row.processorName, row.segment])
 
     return <Button type="default" loading={loading} onClick={onSplitAction} disabled={row.owner == null}>
-        Split
+        <SplitCellsOutlined />
     </Button>
 }
