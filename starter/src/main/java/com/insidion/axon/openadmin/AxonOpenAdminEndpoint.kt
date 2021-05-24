@@ -1,5 +1,6 @@
 package com.insidion.axon.openadmin
 
+import com.insidion.axon.openadmin.events.EventTailingService
 import com.insidion.axon.openadmin.model.TokenInformationDTO
 import com.insidion.axon.openadmin.processors.ProcessorStatusService
 import com.insidion.axon.openadmin.tokens.TokenInformationService
@@ -20,6 +21,7 @@ class AxonOpenAdminEndpoint(
     private val axonOpenAdminTokenStore: TokenInformationService,
     private val processorStatusService: ProcessorStatusService,
     private val eventProcessingModule: EventProcessingModule,
+    private val eventTailingService: EventTailingService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -30,6 +32,9 @@ class AxonOpenAdminEndpoint(
 
     @GetMapping("/processors")
     fun getProcessors() = processorStatusService.getStatus()
+
+    @GetMapping("/events")
+    fun getEvents() = eventTailingService.getEvents()
 
     @PostMapping("/processor/{processorName}/split/{segmentId}")
     fun split(@PathVariable processorName: String, @PathVariable segmentId: Int): ResponseEntity<Unit> {

@@ -8,6 +8,7 @@ import TokenStatusContainer from "./components/tokens/TokenStatusContainer";
 import {startTokenFetching, stopTokenFetching} from "./redux/tokens/fetcher";
 import ProcessorStatusContainer from "./components/processors/ProcessorStatusContainer";
 import {QuestionCircleOutlined} from "@ant-design/icons";
+import EventTableContainer from "./components/events/EventTableContainer";
 
 function App() {
     useEffect(() => {
@@ -45,6 +46,12 @@ function App() {
                         </div>}>
                             <Space direction={"vertical"}>
                                 <ProcessorStatusContainer/>
+                            </Space>
+                        </Card>
+
+                        <Card title={<div>Last 50 events</div>}>
+                            <Space direction={"vertical"}>
+                                <EventTableContainer/>
                             </Space>
                         </Card>
                     </Space>
