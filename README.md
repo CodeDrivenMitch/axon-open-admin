@@ -29,3 +29,4 @@ There are a few things to keep in mind if you are planning on using this library
 
 - It only supports Axon 4.4. I am currently not planning on supporting older versions, since the working of this library depend on some of the private API of Axon Framework.
 - The library will put some load on your token table, although it isn't much unless tons of people have the window open at the same time. Improving this is high on the roadmap
+- There is a known issue with `spring-boot-devtools`. With devtools enabled your application will fail to boot. I will ook into a solution soon.

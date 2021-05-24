@@ -1,6 +1,6 @@
-import {ProcessorRowData} from "../ProcessorRowData";
+import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
-import {Button} from "antd";
+import {Button, Popover} from "antd";
 import {contextPath} from "../../context";
 import {PauseOutlined} from "@ant-design/icons";
 
@@ -15,7 +15,7 @@ async function stopProcessor(name: string, attempt = 1) {
 }
 
 
-export function StopAction({row}: { row: ProcessorRowData }) {
+export function StopAction({row}: { row: TokenOverviewData }) {
     const [loading, setLoading] = useState(false)
 
     const onStopAction = useCallback(async () => {
@@ -24,7 +24,9 @@ export function StopAction({row}: { row: ProcessorRowData }) {
         setLoading(false)
     }, [row.processorName, row.segment])
 
-    return <Button type="default" loading={loading} onClick={onStopAction} disabled={row.owner == null}>
-        <PauseOutlined />
-    </Button>
+    return <Popover content={<p>Pauses the processor. Might need multiple tries if multiple nodes have the processor.</p>} placement={"bottom"}>
+        <Button type="default" loading={loading} onClick={onStopAction} disabled={row.owner == null}>
+            <PauseOutlined/>
+        </Button>
+    </Popover>
 }

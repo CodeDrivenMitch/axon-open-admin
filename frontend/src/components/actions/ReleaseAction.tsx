@@ -1,4 +1,4 @@
-import {ProcessorRowData} from "../ProcessorRowData";
+import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
 import {Button, Popover} from "antd";
 import {contextPath} from "../../context";
@@ -15,7 +15,7 @@ async function releaseSegment(name: string, segment: number, attempt = 1) {
 }
 
 
-export function ReleaseAction({row}: { row: ProcessorRowData }) {
+export function ReleaseAction({row}: { row: TokenOverviewData }) {
     const [loading, setLoading] = useState(false)
 
     const onReleaseAction = useCallback(async () => {
@@ -24,10 +24,12 @@ export function ReleaseAction({row}: { row: ProcessorRowData }) {
         setLoading(false)
     }, [row.processorName, row.segment])
 
-    return <Popover content="Releases this segment on the running node so another node can pick it up" placement={"left"}><Button type="default" loading={loading}
-                                                                                                                                onClick={onReleaseAction}
-                                                                                                                                disabled={row.owner == null}>
-        <SwapOutlined />
-    </Button>
+    return <Popover content="Releases this segment on the running node so another node can pick it up"
+                    placement={"bottom"}>
+        <Button type="default" loading={loading}
+                onClick={onReleaseAction}
+                disabled={row.owner == null}>
+            <SwapOutlined/>
+        </Button>
     </Popover>
 }

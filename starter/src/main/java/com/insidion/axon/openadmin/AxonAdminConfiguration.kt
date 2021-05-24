@@ -23,7 +23,6 @@ import javax.sql.DataSource
 
 @Configuration(proxyBeanMethods = false)
 @ComponentScan("com.insidion.axon.openadmin")
-@ConditionalOnBean(name = ["eventProcessingModule"])
 class AxonAdminConfiguration (
     @Value("\${server.servlet.context-path:}")
     val contextPath: String

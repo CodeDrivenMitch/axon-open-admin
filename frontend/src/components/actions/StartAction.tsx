@@ -1,6 +1,6 @@
-import {ProcessorRowData} from "../ProcessorRowData";
+import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
-import {Button} from "antd";
+import {Button, Popover} from "antd";
 import {contextPath} from "../../context";
 import {PlayCircleOutlined} from "@ant-design/icons";
 
@@ -15,7 +15,7 @@ async function startProcessor(name: string, attempt = 1) {
 }
 
 
-export function StartAction({row}: { row: ProcessorRowData }) {
+export function StartAction({row}: { row: TokenOverviewData }) {
     const [loading, setLoading] = useState(false)
 
     const onStartAction = useCallback(async () => {
@@ -24,7 +24,10 @@ export function StartAction({row}: { row: ProcessorRowData }) {
         setLoading(false)
     }, [row.processorName])
 
-    return <Button type="default" loading={loading} onClick={onStartAction} disabled={row.owner != null}>
-        <PlayCircleOutlined />
-    </Button>
+    return <Popover content={<p>Starts the processor.</p>}
+                    placement={"bottom"}>
+        <Button type="default" loading={loading} onClick={onStartAction} disabled={!row.processorHasUnclaimed}>
+            <PlayCircleOutlined/>
+        </Button>
+    </Popover>
 }

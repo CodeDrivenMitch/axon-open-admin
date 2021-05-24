@@ -8,7 +8,7 @@
         <artifactId>axon-open-admin-parent</artifactId>
         <version>0.0.2-SNAPSHOT</version>
     </parent>
-    <artifactId>axon-open-admin</artifactId>
+    <artifactId>axon-open-admin-starter</artifactId>
 
     <description>This Spring Boot starter project contains an administration interface for Axon Framework, including managing its tracking tokens.</description>
     <url>https://github.com/Morlack/axon-open-admin</url>
@@ -43,20 +43,19 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.insidion</groupId>
+            <artifactId>axon-open-admin-frontend</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.axonframework</groupId>
-            <artifactId>axon-spring</artifactId>
+            <artifactId>axon-spring-boot-starter</artifactId>
             <version>${axon.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <version>1.7.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-spring-boot-autoconfigure</artifactId>
-            <version>${axon.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -75,36 +74,10 @@
             <artifactId>commons-io</artifactId>
             <version>2.8.0</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-configuration</artifactId>
-            <version>${axon.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-eventsourcing</artifactId>
-            <version>${axon.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-modelling</artifactId>
-            <version>${axon.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.axonframework</groupId>
-            <artifactId>axon-messaging</artifactId>
-            <version>${axon.version}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <version>${spring.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>

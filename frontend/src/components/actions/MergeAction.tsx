@@ -1,6 +1,6 @@
-import {ProcessorRowData} from "../ProcessorRowData";
+import {TokenOverviewData} from "../TokenOverviewData";
 import React, {useCallback, useState} from "react";
-import {Button} from "antd";
+import {Button, Popover} from "antd";
 import {contextPath} from "../../context";
 import {MergeCellsOutlined} from "@ant-design/icons";
 
@@ -15,7 +15,7 @@ async function mergeProcessor(name: string, segment: number, attempt = 1) {
 }
 
 
-export function MergeAction({row}: { row: ProcessorRowData }) {
+export function MergeAction({row}: { row: TokenOverviewData }) {
     const [loading, setLoading] = useState(false)
 
     const onSplitAction = useCallback(async () => {
@@ -24,7 +24,10 @@ export function MergeAction({row}: { row: ProcessorRowData }) {
         setLoading(false)
     }, [row.processorName, row.segment])
 
-    return <Button type="default" loading={loading} onClick={onSplitAction}>
-        <MergeCellsOutlined />
-    </Button>
+    return <Popover content={<p>Merges the segment with its ancestor, creating one token out of two. <br/>Effectively reduces active event processor threads by one.</p>}
+                    placement={"bottom"}>
+        <Button type="default" loading={loading} onClick={onSplitAction}>
+            <MergeCellsOutlined/>
+        </Button>
+    </Popover>
 }
