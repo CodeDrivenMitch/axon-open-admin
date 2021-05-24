@@ -5,7 +5,9 @@ let intervalTokens: any;
 let intervalProcessors: any;
 
 export function startTokenFetching() {
+// @ts-ignore TODO
     intervalTokens = setInterval(() => store.dispatch(fetchTokens()), 2000)
+// @ts-ignore TODO
     intervalProcessors = setInterval(() => store.dispatch(fetchNodeInformation()), 500)
 }
 

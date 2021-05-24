@@ -12,7 +12,7 @@ export const fetchTokens = createAsyncThunk(
     async () => {
         let response = await fetch(contextPath + "/tokens", {method: 'GET'});
         if (response.ok) {
-            return await response.json()
+            return await response.json() as TokenInformationSummary
         }
         throw Error("Not logged in")
     }

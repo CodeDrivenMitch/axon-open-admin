@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.insidion</groupId>
         <artifactId>axon-open-admin-parent</artifactId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.2</version>
     </parent>
     <artifactId>axon-open-admin-starter</artifactId>
 
@@ -32,7 +32,7 @@
         <url>https://github.com/Morlack/axon-open-admin</url>
     </scm>
 
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
