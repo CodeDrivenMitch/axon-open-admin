@@ -5,15 +5,16 @@
     <parent>
         <groupId>com.insidion</groupId>
         <artifactId>axon-open-admin-parent</artifactId>
-        <version>0.0.3-SNAPSHOT</version>
+        <version>0.0.3</version>
     </parent>
     <artifactId>axon-open-admin-frontend</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.3</version>
     <name>Frontend</name>
 
     <properties>
         <nodejs.version>v12.14.0</nodejs.version>
         <yarn.version>v1.21.1</yarn.version>
+        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
     </properties>
 
     <build>
@@ -70,8 +71,6 @@
                     </descriptors>
                 </configuration>
             </plugin>
-
-
         </plugins>
     </build>
 
