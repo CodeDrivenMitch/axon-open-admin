@@ -1,17 +1,17 @@
-package com.insidion.axon.openadmin.demo
+package com.insidion.axon.openadmin.demo.projections
 
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
-@ProcessingGroup("error")
+@ProcessingGroup("inifite")
 @Component
-class ErrorProjection {
+class InfiniteProjectio {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     @EventHandler
     fun logEvent(event: Any) {
-        Thread.sleep(1200)
+        throw IllegalStateException("Error on purpose for testing!")
     }
 }

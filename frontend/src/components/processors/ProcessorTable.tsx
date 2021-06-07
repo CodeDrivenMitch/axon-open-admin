@@ -1,11 +1,11 @@
-import {Popover, Space, Table, Tag} from "antd";
+import {Badge, Popover, Space, Table, Tag} from "antd";
 import React from "react";
 import {NodeInformation} from "../../redux/tokens/models";
 
 function ProcessorTable({rows, processors}: { rows: NodeInformation[], processors: string[] }) {
     const now = new Date().getTime();
     return (
-        <Table dataSource={rows} pagination={{pageSize: 20}} size={"small"}>
+        <Table dataSource={rows} pagination={{pageSize: 20}}  tableLayout={"fixed"}>
             <Table.Column title="Node" key="nodeId" dataIndex="nodeId"/>
             <Table.Column title="Last seen" key="lastSeen" render={(row: NodeInformation) => {
                 const secondsSince = Math.floor((now - row.lastSeen) / 1000)
@@ -22,11 +22,16 @@ function ProcessorTable({rows, processors}: { rows: NodeInformation[], processor
                     if (processor?.error) {
                         return <Tag color={"red"}>Error</Tag>
                     }
+                    let available = processor.availableProcessorThreads ?? 0;
+                    let active = processor.activeProcessorThreads ?? 0;
+                    const total = active + available
                     return <Space>
-                        {(processor.activeProcessorThreads ?? 0) > 0 &&
-                        <Popover content={"Active segments for this processor on this node"}><Tag color={"green"}>Active: {processor.activeProcessorThreads}</Tag></Popover>}
-                        <Popover content={"Available threads for this processor on this node. 0 means it cannot start new segments if they are needed"}><Tag
-                            color={processor.availableProcessorThreads ? 'green' : 'yellow'}>Available: {processor.availableProcessorThreads}</Tag></Popover>
+                        <Popover content={"Active threads of the threads available on this node"}>
+                            <Tag color={available > 0 ? "green" : "orange"}>{processor.activeProcessorThreads} / {total}</Tag>
+                        </Popover>
+                        <Popover content={"Configured batch size of this processor"}>
+                        <Badge count={processor.batchSize} style={{ backgroundColor: '#52c41a' }}/>
+                        </Popover>
                     </Space>
                 }}/>
             })}

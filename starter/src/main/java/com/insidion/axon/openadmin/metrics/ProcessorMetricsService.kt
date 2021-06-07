@@ -8,6 +8,8 @@ import io.micrometer.core.instrument.MeterRegistry
 import org.axonframework.eventhandling.tokenstore.AbstractTokenEntry
 import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
@@ -24,9 +26,10 @@ import kotlin.math.truncate
 class ProcessorMetricsService(
     private val tokenProvider: TokenProvider,
     private val serializer: Serializer,
-    private val meterRegistry: MeterRegistry?,
     private val eventStore: EventStore,
 ) {
+    @Autowired(required = false)
+    private val micrometerMetricProvider: MicrometerMetricProvider? = null
     private val metricMap: MutableMap<ProcessorId, MutableList<Measurement>> = mutableMapOf()
     private val statisticMap: MutableMap<ProcessorId, Statistics> = mutableMapOf()
     private val headMeasurements: MutableList<Measurement> = mutableListOf()
@@ -50,30 +53,13 @@ class ProcessorMetricsService(
                 metricMap.remove(id)
             }
             val metricList = metricMap.computeIfAbsent(id) { processorId ->
-                registerTokenAsGauge(it, processorId)
+                micrometerMetricProvider?.registerTokenAsGauge(it, processorId)
                 mutableListOf()
             }
             metricList.add(Measurement(time, position))
             metricList.removeIf { m -> m.time.isBefore(time.minus(5, ChronoUnit.MINUTES)) }
             statisticMap[id] = computeStatistics(id, position, headPosition)
         }
-    }
-
-    private fun registerTokenAsGauge(it: AbstractTokenEntry<*>, processorId: ProcessorId) {
-        if (meterRegistry == null) {
-            return
-        }
-        Gauge.builder("axon.openadmin.processor.${it.processorName}.${it.segment}.position.rate.1m") { getStatistics(processorId)?.seconds60?.positionRate }
-            .baseUnit("position increase per minute")
-            .description("Increase of the event processor position for the last minute. Note that this number is not necessarily the amount of events processed, since gaps can exist in the event-store or part of the events are processed by another thread.")
-
-            .register(meterRegistry)
-
-
-        Gauge.builder("axon.openadmin.processor.${it.processorName}.${it.segment}.position.rate.5m") { getStatistics(processorId)?.seconds300?.positionRate }
-            .baseUnit("events per minute")
-            .description("Increase of the event processor position for the last five minutes. Note that this number is not necessarily the amount of events processed, since gaps can exist in the event-store or part of the events are processed by another thread.")
-            .register(meterRegistry)
     }
 
     fun getStatistics(id: ProcessorId): Statistics? {

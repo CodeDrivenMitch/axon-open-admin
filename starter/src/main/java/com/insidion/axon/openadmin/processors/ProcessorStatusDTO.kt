@@ -7,4 +7,5 @@ data class ProcessorStatusDTO(
     val resettable: Boolean,
     val activeProcessorThreads: Int,
     val availableProcessorThreads: Int,
+    val batchSize: Int?
 )

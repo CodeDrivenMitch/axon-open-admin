@@ -68,6 +68,7 @@ class AxonOpenAdminEndpoint(
             logger.warn("Attempting merge!")
             val status = it.processingStatus()[segmentId]
             if (status != null) {
+                status.segment.mergeableSegmentId()
                 it.mergeSegment(segmentId).get()
                 logger.warn("Merge successful")
             } else {

@@ -1,18 +1,17 @@
-package com.insidion.axon.openadmin.demo
+package com.insidion.axon.openadmin.demo.projections
 
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.EventHandler
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.lang.Thread.sleep
 
-@ProcessingGroup("slow")
+@ProcessingGroup("error")
 @Component
-class SlowProjection {
+class ErrorProjection {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     @EventHandler
     fun logEvent(event: Any) {
-        sleep(800)
+        Thread.sleep(1200)
     }
 }

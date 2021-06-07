@@ -1,8 +1,8 @@
 import {Tag} from "antd";
 import React from "react";
 
-export function TimeToHeadTag({behind, secondsToHead, replaying}: { behind: number, secondsToHead: number | null, replaying: boolean }) {
-    if (!behind) {
+export function TimeToHeadTag({behind, secondsToHead, replaying, batchSize}: { behind: number, secondsToHead: number | null, replaying: boolean, batchSize: number }) {
+    if (behind <= batchSize) {
         return <Tag color="green">Up-to-date</Tag>
     }
     if (secondsToHead == null || !(secondsToHead > 0)) {

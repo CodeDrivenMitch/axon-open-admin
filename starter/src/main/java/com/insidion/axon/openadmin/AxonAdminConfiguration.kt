@@ -14,6 +14,7 @@ import org.axonframework.eventhandling.tokenstore.jpa.JpaTokenStore
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -33,10 +34,6 @@ class AxonAdminConfiguration (
     fun logInitialization() {
         logger.info("Thanks for using AxonOpenAdmin in your application. To get started, navigate to $contextPath/axon-open-admin")
     }
-
-    @Bean
-    @ConditionalOnMissingBean(MeterRegistry::class)
-    fun meterRegistry() = SimpleMeterRegistry()
 
     @Bean
     fun tokenProvider(tokenStore: TokenStore, dataSource: DataSource?): TokenProvider {

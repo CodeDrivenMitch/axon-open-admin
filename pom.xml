@@ -46,9 +46,6 @@
     <modules>
         <module>starter</module>
         <module>frontend</module>
-        <module>demo-application-domain</module>
-        <module>demo-application-jdbc</module>
-        <module>demo-application-jpa</module>
     </modules>
 
 

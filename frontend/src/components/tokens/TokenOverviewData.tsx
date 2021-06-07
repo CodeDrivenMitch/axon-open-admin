@@ -11,6 +11,7 @@ export interface TokenOverviewData {
     positionRate1m: string | undefined,
     positionRate5m: string | undefined,
     resettable: boolean,
+    batchSize: number,
     anyNodeRunning: boolean,
     anyNodeStopped: boolean,
 }

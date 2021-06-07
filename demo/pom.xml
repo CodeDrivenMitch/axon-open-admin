@@ -2,17 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <parent>
-        <groupId>com.insidion</groupId>
-        <artifactId>axon-open-admin-parent</artifactId>
-        <version>0.0.4-SNAPSHOT</version>
-    </parent>
-    <artifactId>axon-open-admin-demo-domain</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <groupId>com.insidion</groupId>
+    <artifactId>axon-open-admin-demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+
+        <axon.version>4.4.8</axon.version>
+        <spring.version>5.3.7</spring.version>
+        <kotlin.version>1.4.32</kotlin.version>
+        <spring-boot.version>2.4.3</spring-boot.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -27,13 +32,23 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jdbc</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.insidion</groupId>
             <artifactId>axon-open-admin-starter</artifactId>
-            <version>${project.version}</version>
+            <version>0.0.4-SNAPSHOT</version>
         </dependency>
 
         <dependency>

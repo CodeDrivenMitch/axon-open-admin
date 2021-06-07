@@ -4,5 +4,6 @@ export interface EventModel {
     aggregate: string
     payloadType: string
     index: number
-    payload: string
+    payload: string,
+    globalSequence?: number
 }

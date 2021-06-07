@@ -16,7 +16,7 @@ function TokenTable({loading, rows}: { loading: boolean, rows: TokenOverviewData
             <Table.Column title={"Behind"} key="behind" dataIndex="behind"/>
             <Table.Column title="Events/m (1m)" key="positionRate1m" dataIndex="positionRate1m"/>
             <Table.Column title="Time to head" key="timeToHead"
-                          render={row => <TimeToHeadTag behind={row.behind} secondsToHead={row.secondsToHead} replaying={row.replaying}/>}/>
+                          render={row => <TimeToHeadTag behind={row.behind} secondsToHead={row.secondsToHead} replaying={row.replaying} batchSize={row.batchSize}/>}/>
             <Table.Column title="Actions" key="actions"
                           render={row => <SegmentActions row={row}/>}/>
         </Table>
