@@ -1,63 +1,93 @@
-import React, {useEffect} from 'react';
+import {BranchesOutlined, DatabaseOutlined} from "@ant-design/icons";
+
+import {Layout, Menu, Typography} from "antd";
 import 'antd/dist/antd.css';
-
-import {Card, Layout, Popover, Space, Typography} from "antd";
+import {Footer, Header} from "antd/es/layout/layout";
+import Sider from "antd/es/layout/Sider";
+import React, {useCallback, useEffect} from 'react';
 import {Provider} from "react-redux";
+import {BrowserRouter, Route, useHistory, useLocation} from "react-router-dom";
+import {CommandProgressModal} from "./components/tokens/commands/CommandProgressModal";
+import {contextPath} from "./context";
+import {EventExplorer} from "./pages/EventExplorer";
+import {ManagementPage} from "./pages/ManagementPage";
 import store from "./redux/store";
-import TokenStatusContainer from "./components/tokens/TokenStatusContainer";
-import {startTokenFetching, stopTokenFetching} from "./redux/tokens/fetcher";
-import ProcessorStatusContainer from "./components/processors/ProcessorStatusContainer";
-import {QuestionCircleOutlined} from "@ant-design/icons";
-import EventTableContainer from "./components/events/EventTableContainer";
+import {
+    startProcessorFetching,
+    startTokenFetching,
+    stopProcessorFetching,
+    stopTokenFetching
+} from "./redux/tokens/fetcher";
 
-function App() {
+function AppMenu() {
+    const history = useHistory();
+    const location = useLocation();
+    const onSelectCallback = useCallback(({key}) => {
+        history.push(`${contextPath}/${key}`)
+    }, [history])
+
     useEffect(() => {
         startTokenFetching()
-        return () => stopTokenFetching()
+        startProcessorFetching()
+        return () => {
+            stopTokenFetching()
+            stopProcessorFetching()
+        }
     }, [])
-    return (
-        <Provider store={store}>
-            <Layout>
-                <Layout.Header className="header">
-                    <Typography.Title className="logo" level={2}>Axon Open Admin</Typography.Title>
-                </Layout.Header>
-                <Layout.Content style={{padding: '10px'}}>
-                    <Space direction={"vertical"}>
-                        <Card title={<div>
-                            <Popover
-                                placement={"right"}
-                                style={{float: 'right'}}
-                                content={
-                                    <Typography.Text>Here you can find the status of the segments of each token. You can find a description of each possible action by hovering over it. Good luck!</Typography.Text>}>
-                                <QuestionCircleOutlined /></Popover>  Token status
-                        </div>}>
-                            <TokenStatusContainer/>
-                        </Card>
-                        <Card title={<div>
-                            <Popover
-                                placement={"right"}
-                                style={{float: 'right'}}
-                                content={
-                                    <Typography.Text>Here you can find the status of the nodes we have discovered through firing rest calls at your back-ends. Don't worry,
-                                        they
-                                        are lightning-fast calls with little performance impact. Each time a node is discovered, or is lost, the table is
-                                        updated.</Typography.Text>}>
-                                <QuestionCircleOutlined /></Popover>  Processor status
-                        </div>}>
-                            <Space direction={"vertical"}>
-                                <ProcessorStatusContainer/>
-                            </Space>
-                        </Card>
 
-                        <Card title={<div>Last 50 events</div>}>
-                            <Space direction={"vertical"}>
-                                <EventTableContainer/>
-                            </Space>
-                        </Card>
-                    </Space>
-                </Layout.Content>
-            </Layout>
-        </Provider>
+    const realUrl = location.pathname.startsWith(contextPath) ? location.pathname.substr(contextPath.length + 1) : location.pathname
+    console.log(`Found page to be ${location.pathname} -> ${realUrl}`)
+    const selectedKey = realUrl.length <= 1 ? "tokens" : realUrl;
+    return <Menu
+        mode="inline"
+        defaultSelectedKeys={[selectedKey]}
+        defaultOpenKeys={['/tokens']}
+        onSelect={onSelectCallback}
+        style={{height: '100%', borderRight: 0}}
+    >
+        <Menu.Item key="tokens"><BranchesOutlined/> Management</Menu.Item>
+        <Menu.Item key="events/tail" ><DatabaseOutlined/> Event Explorer</Menu.Item>
+    </Menu>;
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <Provider store={store}>
+                <Layout style={{minHeight: '100vh'}}>
+                    <Header className="header">
+                        <Typography.Title className={"title"} level={1}>Axon Open Admin</Typography.Title>
+                    </Header>
+                    <Layout>
+                        <Sider width={200} className="site-layout-background">
+                            <AppMenu/>
+                        </Sider>
+                        <Layout style={{padding: '0 24px 24px'}}>
+                            <Layout.Content
+                                className="site-layout-background"
+                                style={{
+                                    padding: 24,
+                                    margin: 0,
+                                    minHeight: 280,
+                                }}
+                            >
+
+                                <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
+                                <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
+                                <Route path={[`${contextPath}/events/tail`]}><EventExplorer/></Route>
+
+                                <CommandProgressModal/>
+                            </Layout.Content>
+                        </Layout>
+                    </Layout>
+                    <Footer>
+                        <div style={{textAlign: 'center'}}>
+                            <span>Axon Open Admin was built by <a target="_blank" rel="noreferrer" href={"https://github.com/Morlack"}>Mitchell Herrijgers</a></span>
+                        </div>
+                    </Footer>
+                </Layout>
+            </Provider>
+        </BrowserRouter>
     );
 }
 

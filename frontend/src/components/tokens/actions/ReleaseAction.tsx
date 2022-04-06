@@ -1,28 +1,21 @@
-import {TokenOverviewData} from "../TokenOverviewData";
-import React, {useCallback, useState} from "react";
-import {Button, Popover} from "antd";
 import {SwapOutlined} from "@ant-design/icons";
-import {contextPath} from "../../../context";
-
-async function releaseSegment(name: string, segment: number, attempt = 1) {
-    const result = await fetch(`${contextPath}/processor/${name}/release/${segment}`, {method: 'POST'})
-    if (!result.ok) {
-        if (attempt > 5) {
-            return;
-        }
-        await releaseSegment(name, attempt + 1)
-    }
-}
-
+import {Button, Popover} from "antd";
+import React, {useCallback, useState} from "react";
+import {executeCommands} from "../commands/CommandExecutor";
+import {ReleaseSegmentCommand} from "../commands/Commands";
+import {TokenOverviewData} from "../TokenOverviewData";
 
 export function ReleaseAction({row}: { row: TokenOverviewData }) {
     const [loading, setLoading] = useState(false)
 
     const onReleaseAction = useCallback(async () => {
         setLoading(true)
-        await releaseSegment(row.processorName, row.segment)
+        await executeCommands([
+                new ReleaseSegmentCommand(row.owner, row.processorName, row.segment)
+            ]
+        )
         setLoading(false)
-    }, [row.processorName, row.segment])
+    }, [row.processorName, row.segment, row.owner])
 
     return <Popover content="Releases this segment on the running node so another node can pick it up"
                     placement={"bottom"}>

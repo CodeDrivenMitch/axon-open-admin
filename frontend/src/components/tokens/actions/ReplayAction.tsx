@@ -1,18 +1,9 @@
-import {TokenOverviewData} from "../TokenOverviewData";
-import React, {useCallback, useState} from "react";
-import {Button, Popconfirm, Popover} from "antd";
-import {contextPath} from "../../../context";
 import {DeleteOutlined} from "@ant-design/icons";
-
-async function replayProcessor(name: string, attempt = 1) {
-    const result = await fetch(`${contextPath}/processor/${name}/reset`, {method: 'POST'})
-    if (!result.ok) {
-        if (attempt > 5) {
-            return;
-        }
-        await replayProcessor(name, attempt + 1)
-    }
-}
+import {Button, Popconfirm, Popover} from "antd";
+import React, {useCallback, useState} from "react";
+import {executeCommands} from "../commands/CommandExecutor";
+import {ResetCommand, StartCommand, StopCommand} from "../commands/Commands";
+import {TokenOverviewData} from "../TokenOverviewData";
 
 
 export function ReplayAction({row}: { row: TokenOverviewData }) {
@@ -20,19 +11,25 @@ export function ReplayAction({row}: { row: TokenOverviewData }) {
 
     const onStopAction = useCallback(async () => {
         setLoading(true)
-        await replayProcessor(row.processorName, row.segment)
+        await executeCommands(
+            [
+                ...row.allNodes.map(owner => new StopCommand(owner, row.processorName)),
+                new ResetCommand(row.owner, row.processorName),
+                ...row.allNodes.map(owner => new StartCommand(owner, row.processorName)),
+            ]
+        )
         setLoading(false)
-    }, [row.processorName, row.segment])
+    }, [row.processorName, row.owner, row.allNodes])
 
-    return <Popover content={<p>Starts a replay of this processor. Will reset the tokens. First stop the processor on all nodes before taking this action</p>} placement={"bottom"}> <Popconfirm
-        title={`Are you sure you want to replay ${row.processorName}?`}
-        onConfirm={onStopAction}
-        onCancel={onStopAction}
-        okText="Yes"
-        cancelText="No"
-    ><Button type="default" loading={loading} disabled={row.anyNodeRunning || row.replaying}>
-        <DeleteOutlined/>
-    </Button>
-    </Popconfirm>
+    return <Popover content={<p>Starts a replay of this processor. Will reset the tokens.</p>} placement={"bottom"}>
+        <Popconfirm
+            title={`Are you sure you want to replay ${row.processorName}?`}
+            onConfirm={onStopAction}
+            okText="Yes"
+            cancelText="No"
+        ><Button type="default" loading={loading}>
+            <DeleteOutlined/>
+        </Button>
+        </Popconfirm>
     </Popover>
 }

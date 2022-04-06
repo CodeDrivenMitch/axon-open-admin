@@ -17,11 +17,12 @@ class OpenAdminFrontendController(
     @Value("\${server.servlet.context-path:}")
     val contextPath: String,
 ) {
-    @GetMapping("/", produces = ["text/html"])
+    @GetMapping(value = ["", "/", "/tokens", "/processors", "/events"], produces = ["text/html"])
     @ResponseBody
     fun serveFrontend(): String {
         val stream = ResourceUtils.getURL("classpath:static/axon-admin/index.html").openStream()
         return StreamUtils.copyToString(stream, Charset.defaultCharset())
+            .replace("__APP_CONTEXT_PATH__", "$contextPath/$axonAdminPath")
             .replace("/static/css", "$contextPath/$axonAdminPath/static/css")
             .replace("/static/js", "$contextPath/$axonAdminPath/static/js")
 

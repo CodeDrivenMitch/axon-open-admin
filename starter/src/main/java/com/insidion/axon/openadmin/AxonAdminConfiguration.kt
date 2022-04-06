@@ -4,17 +4,11 @@ import com.insidion.axon.openadmin.tokens.DummyTokenProvider
 import com.insidion.axon.openadmin.tokens.JdbcTokenProvider
 import com.insidion.axon.openadmin.tokens.JpaTokenProvider
 import com.insidion.axon.openadmin.tokens.TokenProvider
-import io.micrometer.core.instrument.MeterRegistry
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry
-import org.axonframework.config.EventProcessingConfiguration
-import org.axonframework.config.EventProcessingModule
 import org.axonframework.eventhandling.tokenstore.TokenStore
 import org.axonframework.eventhandling.tokenstore.jdbc.JdbcTokenStore
 import org.axonframework.eventhandling.tokenstore.jpa.JpaTokenStore
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
@@ -26,13 +20,15 @@ import javax.sql.DataSource
 @ComponentScan("com.insidion.axon.openadmin")
 class AxonAdminConfiguration (
     @Value("\${server.servlet.context-path:}")
-    val contextPath: String
+    val contextPath: String,
+    @Value("\${axon.admin.base-url:axon-admin}")
+    val axonAdminPath: String,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @PostConstruct
     fun logInitialization() {
-        logger.info("Thanks for using AxonOpenAdmin in your application. To get started, navigate to $contextPath/axon-open-admin")
+        logger.info("Thanks for using Axon Open Admin in your application. To get started, navigate to $contextPath/$axonAdminPath")
     }
 
     @Bean

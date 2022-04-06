@@ -1,11 +1,11 @@
-import {Badge, Popover, Space, Table, Tag} from "antd";
+import {Space, Table, Tag} from "antd";
 import React from "react";
 import {NodeInformation} from "../../redux/tokens/models";
 
 function ProcessorTable({rows, processors}: { rows: NodeInformation[], processors: string[] }) {
     const now = new Date().getTime();
     return (
-        <Table dataSource={rows} pagination={{pageSize: 20}}  tableLayout={"fixed"}>
+        <Table dataSource={rows} pagination={false} tableLayout={"fixed"}>
             <Table.Column title="Node" key="nodeId" dataIndex="nodeId"/>
             <Table.Column title="Last seen" key="lastSeen" render={(row: NodeInformation) => {
                 const secondsSince = Math.floor((now - row.lastSeen) / 1000)
@@ -26,12 +26,9 @@ function ProcessorTable({rows, processors}: { rows: NodeInformation[], processor
                     let active = processor.activeProcessorThreads ?? 0;
                     const total = active + available
                     return <Space>
-                        <Popover content={"Active threads of the threads available on this node"}>
-                            <Tag color={available > 0 ? "green" : "orange"}>{processor.activeProcessorThreads} / {total}</Tag>
-                        </Popover>
-                        <Popover content={"Configured batch size of this processor"}>
-                        <Badge count={processor.batchSize} style={{ backgroundColor: '#52c41a' }}/>
-                        </Popover>
+                        <Tag color={available > 0 ? "green" : "orange"}>{processor.type}<br/>
+                            Batch size: {processor.batchSize} <br/>
+                            Threads: {processor.activeProcessorThreads} / {total}</Tag>
                     </Space>
                 }}/>
             })}

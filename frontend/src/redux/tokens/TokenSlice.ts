@@ -5,12 +5,23 @@ import {NodeInformation, TokenInformationSummary} from "./models";
 export interface TokenSliceState {
     information: TokenInformationSummary | null,
     knownNodes: {[name: string]: NodeInformation},
+    commandProgress: CommandProgress[],
+    commandProgressOpen: boolean
+    commandsFinished: boolean
+}
+
+export interface CommandProgress {
+    description: string,
+    loading: boolean,
+    success: boolean
+    error: string | null
+    attempt: number | null
 }
 
 export const fetchTokens = createAsyncThunk(
     'tokens/get',
     async () => {
-        let response = await fetch(contextPath + "/tokens", {method: 'GET'});
+        let response = await fetch(`${contextPath}/tokens`, {method: 'GET'});
         if (response.ok) {
             return await response.json() as TokenInformationSummary
         }
@@ -22,7 +33,7 @@ export const fetchTokens = createAsyncThunk(
 export const fetchNodeInformation = createAsyncThunk(
     'node/get',
     async () => {
-        let response = await fetch(contextPath + "/processors", {method: 'GET'});
+        let response = await fetch(`${contextPath}/processors`, {method: 'GET'});
         if (response.ok) {
             return await response.json()
         }
@@ -34,10 +45,26 @@ const tokenSlice = createSlice({
     name: '@token',
     initialState: {
         information: null,
-        knownNodes: {}
+        knownNodes: {},
     } as TokenSliceState,
 
-    reducers: {},
+    reducers: {
+
+        closeProgressModal: (state) => {
+            state.commandProgress = []
+            state.commandProgressOpen = false
+        },
+        openProgressModal(state) {
+            state.commandProgressOpen = true
+        },
+        updateProgressModal(state, action: PayloadAction<CommandProgress[]>) {
+            state.commandProgress = action.payload
+            state.commandsFinished = false
+        },
+        reportCommandsFinished(state) {
+            state.commandsFinished = true
+        }
+    },
 
     extraReducers: {
         [fetchTokens.fulfilled as unknown as string]: (state, action: PayloadAction<TokenInformationSummary>) => {
@@ -64,5 +91,10 @@ const tokenSlice = createSlice({
 export const tokenSliceSelector = ({token}: { token: TokenSliceState }) => token;
 export const processorInformationSelector = createSelector(tokenSliceSelector, ({information}) => information)
 export const nodeInformationSelector = createSelector(tokenSliceSelector, ({knownNodes}) => Object.values(knownNodes) as NodeInformation[])
+export const progressModalOpened = createSelector(tokenSliceSelector, ({commandProgressOpen}) => commandProgressOpen)
+export const progressItems = createSelector(tokenSliceSelector, ({commandProgress}) => commandProgress)
+export const commandsFinished = createSelector(tokenSliceSelector, ({commandsFinished}) => commandsFinished)
 
 export default tokenSlice.reducer
+
+export const {closeProgressModal, updateProgressModal, reportCommandsFinished, openProgressModal} = tokenSlice.actions

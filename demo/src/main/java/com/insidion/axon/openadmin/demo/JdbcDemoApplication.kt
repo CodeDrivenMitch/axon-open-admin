@@ -86,7 +86,7 @@ class JdbcDemoApplication {
             .schema(tokenSchema)
             .claimTimeout(Duration.of(5000, ChronoUnit.MILLIS))
             .build()
-        store.createSchema(GenericTokenTableFactory())
+        store.createSchema(GenericTokenTableFactory.INSTANCE)
         return store
     }
 }

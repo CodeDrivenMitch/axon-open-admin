@@ -1,6 +1,12 @@
+.header img {
+  max-height: 40px;
+  display: inline-block;
+  margin-top: -15px;
+}
 
-.header .logo {
-  float: left;
+.header .title {
   color: white;
-  margin-top: 10px
+  display: inline-block;
+  margin-left: 10px;
+  margin-top: 7px;
 }

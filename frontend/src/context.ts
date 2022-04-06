@@ -1,9 +1,11 @@
-let cp = window.location.pathname.substr(1)
-if (cp.length === 0) {
-    cp = "axon-admin"
-}
-if(cp.endsWith("/")) {
-    cp = cp.substr(0, cp.length - 1)
-}
 
-export const contextPath = "/" + cp
+function getContentPath() {
+    // @ts-ignore
+    if (window.appContextPath.startsWith("__")) {
+        return "/axon-admin"
+    }
+    // @ts-ignore
+    return window.appContextPath
+}
+console.log("context-path is " + getContentPath())
+export const contextPath = getContentPath()

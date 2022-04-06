@@ -1,10 +1,10 @@
 package com.insidion.axon.openadmin.metrics
 
 data class Statistics(
-    val behind: Long,
-    val seconds10: StatisticForSeconds,
-    val seconds60: StatisticForSeconds,
-    val seconds300: StatisticForSeconds,
+        val behind: Long,
+        val seconds10: StatisticForSeconds,
+        val seconds60: StatisticForSeconds,
+        val seconds300: StatisticForSeconds,
 )
 
 data class StatisticForSeconds(

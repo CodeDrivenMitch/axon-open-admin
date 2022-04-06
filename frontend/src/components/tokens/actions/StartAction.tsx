@@ -1,38 +1,20 @@
-import {TokenOverviewData} from "../TokenOverviewData";
-import React, {useCallback, useState} from "react";
-import {Button, Popover} from "antd";
-import {contextPath} from "../../../context";
 import {PlayCircleOutlined} from "@ant-design/icons";
-import store from "../../../redux/store";
-import {TokenSliceState} from "../../../redux/tokens/TokenSlice";
-
-async function startProcessor(name: string, attempt = 1) {
-    if (attempt > 10) {
-        return;
-    }
-    const result = await fetch(`${contextPath}/processor/${name}/start`, {method: 'POST'})
-    if (!result.ok) {
-        await startProcessor(name, attempt + 1)
-    } else {
-        setTimeout(() => {
-            const state = store.getState().token as TokenSliceState
-            console.log(state)
-            if(Object.values(state.knownNodes).find((kn) => kn.processorStates?.find(ps => ps.name === name && !ps.running))) {
-                startProcessor(name, attempt + 1)
-            }
-        }, 2000)
-    }
-}
-
+import {Button, Popover} from "antd";
+import React, {useCallback, useState} from "react";
+import {executeCommands} from "../commands/CommandExecutor";
+import {StartCommand} from "../commands/Commands";
+import {TokenOverviewData} from "../TokenOverviewData";
 
 export function StartAction({row}: { row: TokenOverviewData }) {
     const [loading, setLoading] = useState(false)
 
     const onStartAction = useCallback(async () => {
         setLoading(true)
-        await startProcessor(row.processorName)
+        await executeCommands(
+            row.allNodes.map(owner => new StartCommand(owner, row.processorName))
+        )
         setLoading(false)
-    }, [row.processorName])
+    }, [row.processorName, row.allNodes])
 
     return <Popover content={<p>Starts the processor.</p>}
                     placement={"bottom"}>

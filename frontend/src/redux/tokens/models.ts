@@ -12,7 +12,8 @@ export interface NodeProcessorState {
     resettable: boolean,
     activeProcessorThreads?: number
     availableProcessorThreads?: number
-    batchSize: number
+    batchSize: number,
+    type: string,
 }
 
 
@@ -37,7 +38,8 @@ export interface ProcessorSegmentToken {
     replaying: boolean
     behind: number
     statistics: TokenStatistics | null
-    secondsToHead: number | null
+    secondsToHead: number | null,
+    mergeableSegment: number,
 }
 
 export interface TokenStatistics {
