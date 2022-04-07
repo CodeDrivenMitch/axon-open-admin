@@ -47,7 +47,7 @@ Add the following dependency to your maven project:
 ```
 <dependency>
     <groupId>com.insidion</groupId>
-    <artifactId>axon-open-admin</artifactId>
+    <artifactId>axon-open-admin-starter</artifactId>
     <version>0.1.0</version>
 </dependency>
 ```
