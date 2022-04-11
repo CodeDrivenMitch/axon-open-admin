@@ -39,7 +39,7 @@
         <axon.version>4.5.9</axon.version>
         <spring.version>5.3.7</spring.version>
         <kotlin.version>1.4.32</kotlin.version>
-        <spring-boot.version>2.4.3</spring-boot.version>
+        <spring-boot.version>2.6.6</spring-boot.version>
         <dokka.version>1.4.32</dokka.version>
     </properties>
 
