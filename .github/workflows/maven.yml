@@ -1,0 +1,26 @@
+name: Axon Open Admin
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11, 17 ]
+
+    name: Build and tests on JDK ${{ matrix.java }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: 'zulu'
+          cache: 'maven'
+          java-version: ${{ matrix.java }}
+
+      - name: Build and verify
+        run: ./mvnw clean verify
