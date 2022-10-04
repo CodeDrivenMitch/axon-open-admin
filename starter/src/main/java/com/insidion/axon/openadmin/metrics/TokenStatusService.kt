@@ -1,6 +1,10 @@
 package com.insidion.axon.openadmin.metrics
 
-import com.insidion.axon.openadmin.model.*
+import com.insidion.axon.openadmin.model.ProcessorDTO
+import com.insidion.axon.openadmin.model.ProcessorId
+import com.insidion.axon.openadmin.model.SegmentDTO
+import com.insidion.axon.openadmin.model.TokenInformationDTO
+import com.insidion.axon.openadmin.model.toId
 import com.insidion.axon.openadmin.tokens.TokenProvider
 import org.axonframework.eventhandling.ReplayToken
 import org.axonframework.eventhandling.Segment
@@ -19,9 +23,9 @@ import kotlin.math.truncate
  */
 @Service
 class TokenStatusService(
-        private val tokenProvider: TokenProvider,
-        private val serializer: Serializer,
-        private val eventStore: EventStore,
+    private val tokenProvider: TokenProvider,
+    private val serializer: Serializer,
+    private val eventStore: EventStore,
 ) {
     private val metricMap: MutableMap<ProcessorId, MutableList<Measurement>> = mutableMapOf()
     private val statisticMap: MutableMap<ProcessorId, Statistics> = mutableMapOf()
@@ -31,9 +35,9 @@ class TokenStatusService(
     fun getNodeId() = tokenProvider.getNodeId()
 
     fun getTokenInformation() = TokenInformationDTO(
-            tokenProvider.getNodeId(),
-            headMeasurements.maxByOrNull { it.time }?.value ?: 0,
-            tokenInformationMap.values.toList().sortedBy { it.name })
+        tokenProvider.getNodeId(),
+        headMeasurements.maxByOrNull { it.time }?.value ?: 0,
+        tokenInformationMap.values.toList().sortedBy { it.name })
 
 
     @Scheduled(fixedRate = 2000, initialDelay = 1000)
@@ -52,34 +56,36 @@ class TokenStatusService(
 
     private fun updateProcessorDtos(processors: List<AbstractTokenEntry<*>>, headPosition: Long) {
         processors.groupBy { it.processorName }
-                .forEach { (processorName, segments) ->
-                    val segmentDtos = segments.map {
-                        val token = it.getToken(serializer)
+            .filter { it.key != "__config" }
+            .forEach { (processorName, segments) ->
+                val segmentDtos = segments.map {
+                    val token = it.getToken(serializer)
 
-                        val currentIndex = token?.position()?.orElse(0) ?: 0
-                        val behind = headPosition - currentIndex
-                        val statistics = statisticMap[ProcessorId(it.processorName, it.segment)]
-                        val computedSegment = Segment.computeSegment(it.segment, *segments.map { s -> s.segment }.toTypedArray().toIntArray())
-                        SegmentDTO(
-                                currentIndex = currentIndex,
-                                tokenType = token?.let { t -> t::class.java.simpleName },
-                                owner = it.owner,
-                                segment = it.segment,
-                                replaying = ReplayToken.isReplay(token),
-                                behind = behind,
-                                statistics = statistics,
-                                secondsToHead = statistics?.seconds10?.minutesToHead?.times(60),
-                                mergeableSegment = computedSegment.mergeableSegmentId(),
-                                splitSegment = computedSegment.splitSegmentId(),
-                        )
-                    }.sortedBy { it.segment }
-                    tokenInformationMap[processorName] = ProcessorDTO(
-                            name = processorName,
-                            segments = segmentDtos,
-                            replaying = segmentDtos.any { it.replaying == true },
-                            currentIndex = segmentDtos.map { it.currentIndex }.minByOrNull { it ?: 0 }
+                    val currentIndex = token?.position()?.orElse(0) ?: 0
+                    val behind = headPosition - currentIndex
+                    val statistics = statisticMap[ProcessorId(it.processorName, it.segment)]
+                    val computedSegment =
+                        Segment.computeSegment(it.segment, *segments.map { s -> s.segment }.toTypedArray().toIntArray())
+                    SegmentDTO(
+                        currentIndex = currentIndex,
+                        tokenType = token?.let { t -> t::class.java.simpleName },
+                        owner = it.owner,
+                        segment = it.segment,
+                        replaying = ReplayToken.isReplay(token),
+                        behind = behind,
+                        statistics = statistics,
+                        secondsToHead = statistics?.seconds10?.minutesToHead?.times(60),
+                        mergeableSegment = computedSegment.mergeableSegmentId(),
+                        splitSegment = computedSegment.splitSegmentId(),
                     )
-                }
+                }.sortedBy { it.segment }
+                tokenInformationMap[processorName] = ProcessorDTO(
+                    name = processorName,
+                    segments = segmentDtos,
+                    replaying = segmentDtos.any { it.replaying == true },
+                    currentIndex = segmentDtos.map { it.currentIndex }.minByOrNull { it ?: 0 }
+                )
+            }
     }
 
     private fun updateStatistics(processors: List<AbstractTokenEntry<*>>, time: Instant, headPosition: Long) {
@@ -88,7 +94,7 @@ class TokenStatusService(
             val id = it.toId()
             val position = token?.position()?.orElse(0) ?: 0
             val lastKnownPosition: Long = metricMap[id]?.let { mm -> mm.maxByOrNull { mv -> mv.value }?.value ?: 0 }
-                    ?: 0
+                ?: 0
             if (it.owner == null || position < lastKnownPosition) {
                 metricMap.remove(id)
             }
@@ -107,24 +113,28 @@ class TokenStatusService(
         val values = metricMap[id]!!
         val behind = headPosition - (position ?: 0)
         return Statistics(
-                behind,
-                calculateForTimeInSeconds(values, 10, behind),
-                calculateForTimeInSeconds(values, 60, behind),
-                calculateForTimeInSeconds(values, 300, behind),
+            behind,
+            calculateForTimeInSeconds(values, 10, behind),
+            calculateForTimeInSeconds(values, 60, behind),
+            calculateForTimeInSeconds(values, 300, behind),
         )
     }
 
-    fun calculateForTimeInSeconds(measurements: MutableList<Measurement>, seconds: Long, behind: Long): StatisticForSeconds {
+    fun calculateForTimeInSeconds(
+        measurements: MutableList<Measurement>,
+        seconds: Long,
+        behind: Long
+    ): StatisticForSeconds {
         val time = Instant.now()
         val positionRate = getDiff(measurements.filter { it.time.isAfter(time.minus(seconds, ChronoUnit.SECONDS)) })
         val ingestRate = getDiff(headMeasurements.filter { it.time.isAfter(time.minus(seconds, ChronoUnit.SECONDS)) })
         val effectiveRate = truncate((positionRate - ingestRate) * 100) / 100
         return StatisticForSeconds(
-                seconds,
-                ingestRate,
-                positionRate,
-                effectiveRate,
-                if (behind > 0 && effectiveRate > 0) behind / effectiveRate else null
+            seconds,
+            ingestRate,
+            positionRate,
+            effectiveRate,
+            if (behind > 0 && effectiveRate > 0) behind / effectiveRate else null
         )
     }
 
@@ -145,8 +155,8 @@ class TokenStatusService(
     }
 
     data class Measurement(
-            val time: Instant,
-            val value: Long,
+        val time: Instant,
+        val value: Long,
     )
 
 }

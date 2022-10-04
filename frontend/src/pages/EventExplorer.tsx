@@ -8,19 +8,24 @@ import {
     applyConfiguration,
     clearConfiguration,
     EventTailingConfiguration,
-    initialLoadingSelector
+    initialLoadingSelector,
+    isActiveSelector,
+    isPausedSelector,
+    pauseTailing,
+    resumeTailing
 } from "../redux/events/EventsSlice";
 
 export function EventExplorer() {
     const [form] = Form.useForm();
     const loading = useSelector(initialLoadingSelector)
+    const tailingActive = useSelector(isActiveSelector)
+    const isPaused = useSelector(isPausedSelector)
     const [explorerType, setExplorerType] = useState("tailing")
     const [rangeIndexStart, setRangeIndexStart] = useState(null as null | number)
     const [rangeIndexEnd, setRangeIndexEnd] = useState(null as null | number)
 
     const calculateRange = useCallback(() => {
         if (form.getFieldValue("type") === "range" && form.getFieldValue("rangeDateStart") && form.getFieldValue("rangeDateEnd")) {
-            console.log(form.getFieldValue("rangeDateStart"))
             fetch(encodeURI(`${contextPath}/index?sinceTime=${form.getFieldValue("rangeDateStart").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`), {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexStart(null))
                 .then(setRangeIndexStart);
@@ -42,7 +47,9 @@ export function EventExplorer() {
 
     const onFormChange = useCallback((changedValues: Partial<EventTailingConfiguration>, values: EventTailingConfiguration) => {
         setExplorerType(values.type)
-        calculateRange()
+        if (values.type !== "aggregate") {
+            calculateRange()
+        }
     }, [setExplorerType, calculateRange])
 
     const dispatch = useDispatch()
@@ -77,18 +84,22 @@ export function EventExplorer() {
                         tailingHistorySize: 500,
                         rangeDateStart: moment().add(-1, 'hours').startOf('minute'),
                         rangeDateEnd: moment().startOf('minute'),
-                        aggregateId: ""
+                        aggregateId: null
                     }}
                     onValuesChange={onFormChange}
                 >
                     <h2>Configuration</h2>
-                    <p>Configure the range of events you want to tail or fetch here. After applying we will load them in
-                        batches of 100.</p>
+                    <p>
+                        The Event Explorer enables you to query the events in your store. Unless a specific date range
+                        is configured, it will
+                        constantly tail for new events that were published to the event store. You can also tail a
+                        specific aggregate's events.
+                    </p>
                     <Form.Item label="Explorer type" name="type">
                         <Radio.Group>
-                            <Radio.Button value="tailing">Tail event log</Radio.Button>
-                            <Radio.Button value="range">Specific range</Radio.Button>
-                            {/*<Radio.Button value="aggregate">Events for specific aggregate</Radio.Button>*/}
+                            <Radio.Button value="tailing">Tail</Radio.Button>
+                            <Radio.Button value="range">Time range</Radio.Button>
+                            <Radio.Button value="aggregate">Specific aggregate</Radio.Button>
                         </Radio.Group>
                     </Form.Item>
                     {explorerType === "tailing" && <div>
@@ -96,32 +107,45 @@ export function EventExplorer() {
                             <Input type={"number"}/>
                         </Form.Item>
                     </div>}
+                    {explorerType === "aggregate" && <div>
+                        <Form.Item label="Identifier" name={"aggregateId"} required={true}>
+                            <Input type={"text"}/>
+                        </Form.Item>
+                    </div>}
                     {explorerType === "range" && <div>
                         <Form.Item label="Date start" name={"rangeDateStart"}>
-                            <DatePicker showTime  format={(v) => v.local().format("YYYY-MM-DD HH:mm:ss")}/>
+                            <DatePicker showTime format={(v) => v.local().format("YYYY-MM-DD HH:mm:ss")}/>
                         </Form.Item>
                         <Form.Item label="Date end" name={"rangeDateEnd"}>
                             <DatePicker showTime format={(v) => v.local().format("YYYY-MM-DD HH:mm:ss")}/>
                         </Form.Item>
 
                         {(rangeIndexEnd == null || rangeIndexStart == null) &&
-                        <p>Could not predict how many events we will fetch.</p>}
+                            <p>Could not predict how many events we will fetch.</p>}
                     </div>}
-                    <div>
+                    {explorerType !== "aggregate" && <div>
                         {rangeIndexEnd != null && rangeIndexStart != null &&
-                        <p>This range will fetch {rangeIndexEnd!! - rangeIndexStart!!} events
-                            (index {rangeIndexStart} to {rangeIndexEnd}). <br/>
-                            Beware of the load this can put on your application. Axon caches the last 10K events, but
-                            can
-                            and will fetch from your store as needed)</p>}
-                        <Form.Item>
-                            <Button type="primary" onClick={applyForm} loading={loading}>Apply configuration</Button>
-                        </Form.Item>
-                    </div>
+                            <p>This range will fetch {rangeIndexEnd!! - rangeIndexStart!!} events
+                                (index {rangeIndexStart} to {rangeIndexEnd}).</p>}
+                    </div>}
+                    <Form.Item>
+                        <Button type="primary" onClick={applyForm} loading={loading}>Apply configuration</Button>
+                        {tailingActive &&
+                            <Button type="default" onClick={() => dispatch(pauseTailing())}>Pause</Button>}
+                        {isPaused && <Button type="default" onClick={() => dispatch(resumeTailing())}>Resume</Button>}
+                    </Form.Item>
                 </Form>
             </Space>
 
-            <EventTableContainer/>
+            <EventTableContainer aggregateSelectionCallback={(identifier) => {
+                dispatch(clearConfiguration())
+                form.setFields([
+                    {name: 'type', value: 'aggregate'},
+                    {name: 'aggregateId', value: identifier}
+                ]);
+                setExplorerType('aggregate')
+                applyForm();
+            }}/>
         </Space>
     </Card>;
 }

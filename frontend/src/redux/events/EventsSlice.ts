@@ -12,6 +12,7 @@ export interface EventsSliceState {
     maxIndex: number | null
     caughtUp: boolean,
     fetching: boolean,
+    tailingPaused: boolean,
 }
 
 export interface EventTailingConfiguration {
@@ -27,6 +28,10 @@ interface ApplyResult {
     minIndex: number,
 }
 
+interface TailResult {
+    items: EventModel[]
+}
+
 export const applyConfiguration = createAsyncThunk(
     'events/applyconfig',
     async (configuration: EventTailingConfiguration, {dispatch, extra}) => {
@@ -35,15 +40,22 @@ export const applyConfiguration = createAsyncThunk(
             const index = await response.json()
             return {
                 configuration,
-                minIndex: index - configuration.tailingHistorySize < 0 ? 0 : index - configuration.tailingHistorySize
+                minIndex: index - configuration.tailingHistorySize < 0 ? 0 : index - configuration.tailingHistorySize,
             }
         }
-        if(configuration.type === "range") {
+        if (configuration.type === "range") {
             const response = await fetch(`${contextPath}/index?sinceTime=${configuration.rangeDateStart}`, {method: 'GET'});
             const index = await response.json()
             return {
                 configuration,
-                minIndex: index
+                minIndex: index,
+            }
+        }
+        if (configuration.type === "aggregate") {
+            return {
+                configuration,
+                aggregateId: configuration.aggregateId,
+                minIndex: -1,
             }
         }
     }
@@ -53,10 +65,22 @@ export const tailEvents = createAsyncThunk(
     'events/get',
     async (_, {getState}) => {
         const state = (getState() as any).events as EventsSliceState;
-        console.log(state.currentIndex)
+        console.log(state)
+        if (state.configuration?.type === "aggregate") {
+            const response = await fetch(`${contextPath}/events/${state.configuration.aggregateId}?sinceIndex=${(state.currentIndex === null ? -1 : state.currentIndex) + 1}`, {method: 'GET'});
+            if (response.ok) {
+                return {
+                    items: await response.json() as EventModel[],
+                    finite: true,
+                }
+            }
+        }
         const response = await fetch(`${contextPath}/events?sinceIndex=${state.currentIndex}`, {method: 'GET'});
         if (response.ok) {
-            return await response.json() as EventModel[]
+            return {
+                items: await response.json() as EventModel[],
+                finite: false,
+            }
         }
         return [];
     }
@@ -72,12 +96,20 @@ const eventSlice = createSlice({
         maxIndex: null,
         caughtUp: true,
         fetching: false,
+        finite: false,
+        tailingPaused: false,
     } as EventsSliceState,
 
     reducers: {
         clearConfiguration: (state) => {
             state.configuration = null
         },
+        pauseTailing: (state) => {
+            state.tailingPaused = true;
+        },
+        resumeTailing: (state) => {
+            state.tailingPaused = false;
+        }
     },
 
     extraReducers: {
@@ -85,8 +117,8 @@ const eventSlice = createSlice({
             state.initialLoadingTail = false;
             state.configuration = action.payload.configuration
             state.currentIndex = action.payload.minIndex
-            state.caughtUp = false;
             state.fetching = false;
+            state.tailingPaused = false;
         },
         [applyConfiguration.pending as unknown as string]: (state) => {
             state.initialLoadingTail = true;
@@ -95,14 +127,14 @@ const eventSlice = createSlice({
         [tailEvents.pending as unknown as string]: (state) => {
             state.fetching = true;
         },
-        [tailEvents.fulfilled as unknown as string]: (state, action: PayloadAction<EventModel[]>) => {
-            const events = action.payload.concat(state.tail).slice(0, state.configuration?.tailingHistorySize)
+        [tailEvents.fulfilled as unknown as string]: (state, action: PayloadAction<TailResult>) => {
+            const events = action.payload.items.concat(state.tail).slice(0, state.configuration?.tailingHistorySize)
             state.tail = events.filter(e => state.configuration?.type !== "range" || moment(e.timestamp).isBefore(moment(state.configuration?.rangeDateEnd)))
-            const lastIndex = _.maxBy(state.tail, 'globalSequence')?.globalSequence ?? state.currentIndex ?? 0
-            if (lastIndex - (state.currentIndex ?? 0) < 50) {
-                state.caughtUp = true;
+            if (state.configuration?.type === 'aggregate') {
+                state.currentIndex = _.maxBy(state.tail, 'index')?.index ?? state.currentIndex ?? 0
+            } else {
+                state.currentIndex = _.maxBy(state.tail, 'globalSequence')?.globalSequence ?? state.currentIndex ?? 0
             }
-            state.currentIndex = lastIndex
             state.fetching = false
         },
     }
@@ -113,6 +145,14 @@ export const eventSliceSelector = ({events}: { events: EventsSliceState }) => ev
 export const eventTailSelector = createSelector(eventSliceSelector, ({tail}) => tail)
 export const caughtUpSelector = createSelector(eventSliceSelector, ({caughtUp}) => caughtUp)
 export const initialLoadingSelector = createSelector(eventSliceSelector, ({initialLoadingTail}) => initialLoadingTail)
+export const isActiveSelector = createSelector(eventSliceSelector, ({
+                                                                        configuration,
+                                                                        tailingPaused
+                                                                    }) => configuration != null && !tailingPaused)
+export const isPausedSelector = createSelector(eventSliceSelector, ({
+                                                                        configuration,
+                                                                        tailingPaused
+                                                                    }) => configuration != null && tailingPaused)
 
-export const {clearConfiguration} = eventSlice.actions
+export const {clearConfiguration, pauseTailing, resumeTailing} = eventSlice.actions
 export default eventSlice.reducer

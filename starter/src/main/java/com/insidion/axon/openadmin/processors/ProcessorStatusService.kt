@@ -18,14 +18,14 @@ class ProcessorStatusService(
             val properties = eventProcessingProperties.processors[it.name]
             it.processingStatus()
             ProcessorStatusDTO(
-                    name = name,
-                    running = it.isRunning,
-                    error = it.isError,
-                    resettable = it.supportsReset(),
-                    activeProcessorThreads = if (it is TrackingEventProcessor) it.activeProcessorThreads() else null,
-                    availableProcessorThreads = it.maxCapacity(),
-                    batchSize = properties?.batchSize ?: 1,
-                    it.javaClass.simpleName
+                name = name,
+                running = it.isRunning,
+                error = it.isError,
+                resettable = it.supportsReset(),
+                activeProcessorThreads = if (it is TrackingEventProcessor) it.activeProcessorThreads() else null,
+                availableProcessorThreads = if (it is TrackingEventProcessor) it.availableProcessorThreads() else 0,
+                batchSize = properties?.batchSize ?: 1,
+                it.javaClass.simpleName
             )
         }.orElse(null)
     })

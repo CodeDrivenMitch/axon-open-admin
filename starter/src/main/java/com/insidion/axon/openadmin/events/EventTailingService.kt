@@ -1,59 +1,83 @@
 package com.insidion.axon.openadmin.events
 
+import com.fasterxml.jackson.databind.JsonNode
+import org.axonframework.axonserver.connector.event.axon.AxonServerEventStore
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.DomainEventMessage
+import org.axonframework.eventhandling.EventMessage
 import org.axonframework.eventhandling.GapAwareTrackingToken
+import org.axonframework.eventhandling.GlobalSequenceTrackingToken
 import org.axonframework.eventhandling.TrackedEventMessage
-import org.axonframework.eventsourcing.eventstore.EventStorageEngine
+import org.axonframework.eventhandling.TrackingToken
+import org.axonframework.eventsourcing.eventstore.EventStore
 import org.axonframework.serialization.Serializer
 import org.axonframework.serialization.UnknownSerializedType
 import org.springframework.stereotype.Service
 import java.time.Instant
-import java.util.stream.Stream
+import java.util.concurrent.TimeUnit
 import kotlin.streams.toList
 
 @Service
 @ProcessingGroup("admin")
 class EventTailingService(
-        private val serializer: Serializer,
-        private val eventStore: EventStorageEngine,
+    private val serializer: Serializer,
+    private val eventStore: EventStore,
 ) {
 
     fun getCurrentIndex(): Long {
         return eventStore.createHeadToken().position().orElse(0)
     }
+
     fun getIndexAt(instant: Instant): Long {
-        return eventStore.createTokenAt(instant).position().orElse(0)
+        return eventStore.createTokenAt(instant)?.position()?.orElse(0) ?: 0
     }
 
     fun getEvents(sinceIndex: Long?): List<CaughtEvent> {
         val index = sinceIndex ?: (getCurrentIndex() - 100)
-        val events = eventStore.readEvents(GapAwareTrackingToken.newInstance(index, emptyList()), true)
-                .limit(100)
-        return mapEvents(events)
+        val items = mutableListOf<TrackedEventMessage<*>>()
+        val stream = eventStore.openStream(createToken(index))
+        while (stream.hasNextAvailable(100, TimeUnit.MILLISECONDS) && items.size < 100) {
+            items.add(stream.nextAvailable())
+        }
+
+        return mapEvents(items)
     }
 
-    fun getEvents(aggregateIdentifier: String): List<CaughtEvent> {
-        return mapEvents(eventStore.readEvents(aggregateIdentifier).asStream())
+    private fun createToken(index: Long): TrackingToken {
+        if (eventStore is AxonServerEventStore) {
+            return GlobalSequenceTrackingToken(index)
+        }
+        return GapAwareTrackingToken.newInstance(index, emptyList())
+    }
+
+    fun getEvents(aggregateIdentifier: String, sequence: Long): List<CaughtEvent> {
+        return mapEvents(eventStore.readEvents(aggregateIdentifier, sequence).asStream().toList())
 
     }
 
-    fun mapEvents(stream: Stream<*>) = stream
-            .filter { it is DomainEventMessage<*> }
-            .map { it as DomainEventMessage<*> }
-            .filter { it.payloadType !is UnknownSerializedType }
-            .map {
-                val globalSequence = if (it is TrackedEventMessage<*>) it.trackingToken().position().orElse(0) else 0
-                CaughtEvent(it.timestamp, it.aggregateIdentifier, it.payloadType.simpleName, it.sequenceNumber, globalSequence, it.serializePayload(serializer, String::class.java).data)
-            }.toList()
-            .sortedByDescending { it.timestamp }
+    fun mapEvents(stream: List<EventMessage<*>>) = stream
+        .filter { it is DomainEventMessage<*> }
+        .map { it as DomainEventMessage<*> }
+        .filter { it.payload !is UnknownSerializedType }
+        .map {
+            val globalSequence = if (it is TrackedEventMessage<*>) it.trackingToken().position().orElse(0) else 0
+            CaughtEvent(
+                it.timestamp,
+                it.aggregateIdentifier,
+                it.payloadType.simpleName,
+                it.sequenceNumber,
+                globalSequence,
+                it.serializePayload(serializer, JsonNode::class.java).data
+            )
+        }.toList()
+        .sortedByDescending { it.timestamp }
 
     data class CaughtEvent(
-            val timestamp: Instant,
-            val aggregate: String,
-            val payloadType: String,
-            val index: Long,
-            val globalSequence: Long,
-            val payload: Any,
+        val timestamp: Instant,
+        val aggregate: String,
+        val payloadType: String,
+        val index: Long,
+        val globalSequence: Long,
+        val payload: JsonNode,
     )
 }

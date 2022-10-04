@@ -46,7 +46,7 @@ function AppMenu() {
         style={{height: '100%', borderRight: 0}}
     >
         <Menu.Item key="tokens"><BranchesOutlined/> Management</Menu.Item>
-        <Menu.Item key="events/tail" ><DatabaseOutlined/> Event Explorer</Menu.Item>
+        <Menu.Item key="events"><DatabaseOutlined/> Event Explorer</Menu.Item>
     </Menu>;
 }
 
@@ -74,7 +74,7 @@ function App() {
 
                                 <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
                                 <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
-                                <Route path={[`${contextPath}/events/tail`]}><EventExplorer/></Route>
+                                <Route path={[`${contextPath}/events`]} exact={false}><EventExplorer/></Route>
 
                                 <CommandProgressModal/>
                             </Layout.Content>

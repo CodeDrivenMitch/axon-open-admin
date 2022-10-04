@@ -1,5 +1,7 @@
 package com.insidion.axon.openadmin
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.insidion.axon.openadmin.tokens.DummyTokenProvider
 import com.insidion.axon.openadmin.tokens.JdbcTokenProvider
 import com.insidion.axon.openadmin.tokens.JpaTokenProvider
@@ -18,7 +20,7 @@ import javax.sql.DataSource
 
 @Configuration(proxyBeanMethods = false)
 @ComponentScan("com.insidion.axon.openadmin")
-class AxonAdminConfiguration (
+class AxonAdminConfiguration(
     @Value("\${server.servlet.context-path:}")
     val contextPath: String,
     @Value("\${axon.admin.base-url:axon-admin}")
@@ -44,5 +46,9 @@ class AxonAdminConfiguration (
     @Bean
     @ConditionalOnMissingBean(TokenStore::class)
     fun tokenProvider() = DummyTokenProvider()
+
+    @Bean(name = ["axonOpenAdmin"])
+    fun objectMapper() = ObjectMapper().findAndRegisterModules()
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
 }
 
