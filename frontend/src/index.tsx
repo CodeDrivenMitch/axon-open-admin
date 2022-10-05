@@ -1,10 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
-import {startEventThread} from "./redux/events/fetcher";
-
-startEventThread()
+import './index.css';
 
 ReactDOM.render(
   <React.StrictMode>

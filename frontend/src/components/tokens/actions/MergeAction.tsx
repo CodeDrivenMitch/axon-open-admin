@@ -11,7 +11,7 @@ export function MergeAction({row}: { row: TokenOverviewData }) {
     const onSplitAction = useCallback(async () => {
         setLoading(true)
         const chosenNode = row.allNodes[0];
-        const nodesToStop = row.allNodes.filter(node => node != chosenNode);
+        const nodesToStop = row.allNodes.filter(node => node !== chosenNode);
         await executeCommands([
                 ...nodesToStop.map(node => new StopCommand(node, row.processorName)),
                 new MergeSegmentCommand(chosenNode, row.processorName, row.segment),
@@ -19,7 +19,7 @@ export function MergeAction({row}: { row: TokenOverviewData }) {
             ]
         )
         setLoading(false)
-    }, [row.processorName, row.segment, row.owner, row.allNodes])
+    }, [row.processorName, row.segment, row.allNodes])
 
     return <Popover
         content={<p>Merges the segment with its closest relative (segment {row.mergeableSegment}), creating one token

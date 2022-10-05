@@ -1,8 +1,9 @@
 import _ from "lodash";
+import {DlqOverviewInfo} from "../../redux/dlq/DlqSlice";
 import {NodeInformation, TokenInformationSummary} from "../../redux/tokens/models";
 import {TokenOverviewData} from "./TokenOverviewData";
 
-export function mapProcessorInformationToDataSource(processorInformation: TokenInformationSummary | null, nodeInformation: NodeInformation[]): TokenOverviewData[] {
+export function mapProcessorInformationToDataSource(processorInformation: TokenInformationSummary | null, nodeInformation: NodeInformation[], dlqInformation: { [name: string]: DlqOverviewInfo }): TokenOverviewData[] {
 
     return processorInformation?.processors?.flatMap(p => {
         return p.segments.map((segment, index, all) => {
@@ -28,7 +29,9 @@ export function mapProcessorInformationToDataSource(processorInformation: TokenI
                 anyNodeRunning: !!processorStates?.find(ps => ps?.running || ps?.error),
                 anyNodeStopped: !!processorStates?.find(ps => !ps?.running && !ps?.error),
                 batchSize: processorStates && processorStates[0] ? processorStates[0]?.batchSize : 1,
-                threadsAvailable: !!processorStates.find(i => (i?.availableProcessorThreads ?? 0) > 0)
+                threadsAvailable: !!processorStates.find(i => (i?.availableProcessorThreads ?? 0) > 0),
+                dlqAvailable: !!dlqInformation[p.name],
+                dlqSize: dlqInformation[p.name]?.numberOfMessages,
             }
         })
     }) ?? [];

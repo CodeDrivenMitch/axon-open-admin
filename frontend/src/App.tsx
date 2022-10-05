@@ -9,8 +9,11 @@ import {Provider} from "react-redux";
 import {BrowserRouter, Route, useHistory, useLocation} from "react-router-dom";
 import {CommandProgressModal} from "./components/tokens/commands/CommandProgressModal";
 import {contextPath} from "./context";
+import {DlqPage} from "./pages/DlqPage";
 import {EventExplorer} from "./pages/EventExplorer";
 import {ManagementPage} from "./pages/ManagementPage";
+import {startDlqThread, stopDlqFetching} from "./redux/dlq/fetcher";
+import {startEventThread, stopEventFetching} from "./redux/events/fetcher";
 import store from "./redux/store";
 import {
     startProcessorFetching,
@@ -29,9 +32,13 @@ function AppMenu() {
     useEffect(() => {
         startTokenFetching()
         startProcessorFetching()
+        startDlqThread()
+        startEventThread()
         return () => {
             stopTokenFetching()
             stopProcessorFetching()
+            stopDlqFetching()
+            stopEventFetching()
         }
     }, [])
 
@@ -75,6 +82,7 @@ function App() {
                                 <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
                                 <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
                                 <Route path={[`${contextPath}/events`]} exact={false}><EventExplorer/></Route>
+                                <Route path={[`${contextPath}/dlq/:name`]} exact={false}><DlqPage/></Route>
 
                                 <CommandProgressModal/>
                             </Layout.Content>

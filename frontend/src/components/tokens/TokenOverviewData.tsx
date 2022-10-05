@@ -18,4 +18,6 @@ export interface TokenOverviewData {
     anyNodeRunning: boolean,
     anyNodeStopped: boolean,
     threadsAvailable: boolean,
+    dlqAvailable: boolean,
+    dlqSize: number | undefined
 }

@@ -14,9 +14,9 @@ class ProcessorStatusService(
         private val eventProcessingProperties: EventProcessorProperties
 ) {
     fun getStatus() = EventProcessorStatusDTO(tokenProvider.getNodeId(), eventProcessingModule.eventProcessors().keys.mapNotNull { name ->
+        val deadLetterQueue = eventProcessingModule.deadLetterQueue(name)
         eventProcessingModule.eventProcessor(name, StreamingEventProcessor::class.java).map {
             val properties = eventProcessingProperties.processors[it.name]
-            it.processingStatus()
             ProcessorStatusDTO(
                 name = name,
                 running = it.isRunning,
@@ -25,7 +25,8 @@ class ProcessorStatusService(
                 activeProcessorThreads = if (it is TrackingEventProcessor) it.activeProcessorThreads() else null,
                 availableProcessorThreads = if (it is TrackingEventProcessor) it.availableProcessorThreads() else 0,
                 batchSize = properties?.batchSize ?: 1,
-                it.javaClass.simpleName
+                type = it.javaClass.simpleName,
+                dlqConfigured = deadLetterQueue.isPresent,
             )
         }.orElse(null)
     })
