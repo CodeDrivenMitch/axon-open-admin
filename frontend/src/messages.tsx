@@ -52,18 +52,13 @@ export const ReplayActionMessage = ({children}: { children: any }) =>
         placement={"bottom"}
     >{children}</Popover>
 
-export const ReplayActionConfirmation = ({processorName, children}: { processorName: string, children?: any }) =>
-    <Popover
-        title={<Typography.Text strong>Confirm Replay action</Typography.Text>}
-        content={
-            <div style={messageStyling}>
-                <Typography.Paragraph>
-                    Are you sure you want to replay {processorName}?
-                    This might delete data and will start the event stream from the beginning.
-                </Typography.Paragraph>
-            </div>}
-        placement={"bottom"}
-    >{children}</Popover>
+export const ReplayActionConfirmation = ({processorName, children}: { processorName: string, children?: any }) => <div
+    style={messageStyling}>
+    <Typography.Paragraph>
+        Are you sure you want to replay {processorName}?
+        This might delete data and will start the event stream from the beginning.
+    </Typography.Paragraph>
+</div>
 
 export const SplitActionMessage = ({children}: { children: any }) =>
     <Popover

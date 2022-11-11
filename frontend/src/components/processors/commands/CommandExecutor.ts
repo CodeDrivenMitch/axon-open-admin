@@ -43,7 +43,7 @@ const timeout = function() {
 }
 
 export async function executeCommands(commands: TokenCommand[]) {
-    const commandsWithProgress = commands.map(command => {
+    const commandsWithProgress = commands.filter(c => !!c).map(command => {
         return {
             command,
             attempt: 0,

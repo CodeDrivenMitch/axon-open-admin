@@ -132,3 +132,23 @@ export class ResetCommand implements TokenCommand {
         };
     }
 }
+
+export class ClearDlqCommand implements TokenCommand {
+    nodeId: string;
+    processorName: string;
+    description: string;
+
+    constructor(nodeId: string, processorName: string) {
+        this.nodeId = nodeId;
+        this.processorName = processorName
+        this.description = `Clearing DLQ for processor ${processorName} using node ${nodeId}`
+    }
+
+    provideCommand(): any {
+        return {
+            nodeId: this.nodeId,
+            type: "CLEAR_DLQ",
+            processorName: this.processorName
+        };
+    }
+}

@@ -7,4 +7,5 @@ enum class AxonAdminCommmandType {
     SPLIT_SEGMENT,
     MERGE_SEGMENT,
     RESET_PROCESSOR,
+    CLEAR_DLQ,
 }
