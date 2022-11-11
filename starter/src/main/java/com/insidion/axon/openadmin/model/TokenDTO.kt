@@ -1,7 +1,5 @@
 package com.insidion.axon.openadmin.model
 
-import com.insidion.axon.openadmin.metrics.Statistics
-
 data class TokenInformationDTO(
     val nodeId: String,
     val headIndex: Long,
@@ -16,14 +14,12 @@ data class ProcessorDTO(
 )
 
 data class SegmentDTO(
-        val segment: Int?,
-        val tokenType: String?,
-        val owner: String?,
-        val currentIndex: Long?,
-        val replaying: Boolean?,
-        val behind: Long,
-        val statistics: Statistics?,
-        val secondsToHead: Double?,
-        val mergeableSegment: Int?,
-        val splitSegment: Int?,
+    val segment: Int?,
+    val oneOf: Int,
+    val tokenType: String?,
+    val currentIndex: Long?,
+    val replaying: Boolean?,
+    val behind: Long,
+    val mergeableSegment: Int?,
+    val splitSegment: Int?,
 )

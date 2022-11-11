@@ -12,7 +12,8 @@ import {
     isActiveSelector,
     isPausedSelector,
     pauseTailing,
-    resumeTailing
+    resumeTailing,
+    tailingCleared
 } from "../redux/events/EventsSlice";
 
 export function EventExplorer() {
@@ -66,7 +67,7 @@ export function EventExplorer() {
         const interval = setInterval(calculateRange, 5000)
         // Clear tailing configuration when navigating away
         return () => {
-            dispatch(clearConfiguration())
+            dispatch(tailingCleared())
             clearInterval(interval)
         }
     }, [calculateRange, dispatch])
@@ -88,7 +89,6 @@ export function EventExplorer() {
                     }}
                     onValuesChange={onFormChange}
                 >
-                    <h2>Configuration</h2>
                     <p>
                         The Event Explorer enables you to query the events in your store. Unless a specific date range
                         is configured, it will

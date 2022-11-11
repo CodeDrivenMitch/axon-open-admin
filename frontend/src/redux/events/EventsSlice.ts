@@ -109,7 +109,12 @@ const eventSlice = createSlice({
         },
         resumeTailing: (state) => {
             state.tailingPaused = false;
-        }
+        },
+        tailingCleared: (state) => {
+            state.configuration = null
+            state.tailingPaused = true;
+            state.tail = []
+        },
     },
 
     extraReducers: {
@@ -154,5 +159,5 @@ export const isPausedSelector = createSelector(eventSliceSelector, ({
                                                                         tailingPaused
                                                                     }) => configuration != null && tailingPaused)
 
-export const {clearConfiguration, pauseTailing, resumeTailing} = eventSlice.actions
+export const {clearConfiguration, pauseTailing, resumeTailing, tailingCleared} = eventSlice.actions
 export default eventSlice.reducer

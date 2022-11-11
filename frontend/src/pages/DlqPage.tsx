@@ -113,7 +113,7 @@ export function DlqPage() {
                             okText="Yes"
                             cancelText="No"
                         >
-                            <Button type="default" disabled={row.amount === 1}>
+                            <Button type="default">
                                 <DeleteOutlined/>
                             </Button>
                         </Popconfirm>

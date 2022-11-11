@@ -3,16 +3,14 @@ package com.insidion.axon.openadmin.command.handlers
 import com.insidion.axon.openadmin.command.AxonAdminCommand
 import com.insidion.axon.openadmin.command.AxonAdminCommandHandler
 import com.insidion.axon.openadmin.command.AxonAdminCommmandType
-import com.insidion.axon.openadmin.metrics.TokenStatusService
 import org.axonframework.config.EventProcessingConfiguration
 import org.axonframework.eventhandling.StreamingEventProcessor
 import org.springframework.stereotype.Component
 
 @Component
 class SplitSegmentAxonAdminCommandHandler(
-        eventProcessingModule: EventProcessingConfiguration,
-        tokenStatusService: TokenStatusService
-) : AxonAdminCommandHandler(eventProcessingModule, tokenStatusService) {
+    eventProcessingModule: EventProcessingConfiguration,
+) : AxonAdminCommandHandler(eventProcessingModule) {
     override fun executeCommand(command: AxonAdminCommand, eventProcessor: StreamingEventProcessor) {
         val segment = command.segment ?: throw IllegalArgumentException("No segment supplied in command")
         val status = eventProcessor.processingStatus()[segment]

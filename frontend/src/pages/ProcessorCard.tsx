@@ -2,15 +2,14 @@ import {QuestionCircleOutlined} from "@ant-design/icons";
 import {Card, Popover, Typography} from "antd";
 import React from "react";
 import {useSelector} from "react-redux";
-import {mapProcessorInformationToDataSource} from "../components/tokens/MapProcessorInformationToDataSource";
-import TokenTable from "../components/tokens/TokenTable";
+import {mapProcessorInformationToDataSource} from "../components/processors/MapProcessorInformationToDataSource";
+import ProcessorTable from "../components/processors/ProcessorTable";
 import {dlqCountSelector} from "../redux/dlq/DlqSlice";
-import {nodeInformationSelector, processorInformationSelector} from "../redux/tokens/TokenSlice";
+import {nodeInformationSelector} from "../redux/tokens/TokenSlice";
 
 const description = `Here you can find the status of the segments of each token. You can find a description of each possible action by hovering over it. Good luck!`
 
-export function TokenManagementCard() {
-    const processorInformation = useSelector(processorInformationSelector)
+export function ProcessorCard() {
     const nodeInformation = useSelector(nodeInformationSelector)
     const dlqInformation = useSelector(dlqCountSelector)
     return <Card title={<div>
@@ -18,9 +17,8 @@ export function TokenManagementCard() {
             placement={"right"}
             style={{float: 'right'}}
             content={<Typography.Text>{description}</Typography.Text>}>
-            <QuestionCircleOutlined/></Popover> Token status
+            <QuestionCircleOutlined/></Popover> Event Processor Status
     </div>}>
-        <TokenTable loading={!processorInformation}
-                    rows={mapProcessorInformationToDataSource(processorInformation, nodeInformation, dlqInformation)}/>
+        <ProcessorTable rows={mapProcessorInformationToDataSource(nodeInformation, dlqInformation)}/>
     </Card>;
 }

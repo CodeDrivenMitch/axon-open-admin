@@ -1,12 +1,8 @@
-import {Divider} from "antd";
 import React from "react";
-import {ProcessorManagementCard} from "./ProcessorManagementCard";
-import {TokenManagementCard} from "./TokenManagementCard";
+import {ProcessorCard} from "./ProcessorCard";
 
 export function ManagementPage() {
     return <div>
-        <TokenManagementCard/>
-        <Divider/>
-        <ProcessorManagementCard/>
+        <ProcessorCard/>
     </div>;
 }

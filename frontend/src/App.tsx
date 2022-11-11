@@ -7,7 +7,7 @@ import Sider from "antd/es/layout/Sider";
 import React, {useCallback, useEffect} from 'react';
 import {Provider} from "react-redux";
 import {BrowserRouter, Route, useHistory, useLocation} from "react-router-dom";
-import {CommandProgressModal} from "./components/tokens/commands/CommandProgressModal";
+import {CommandProgressModal} from "./components/processors/commands/CommandProgressModal";
 import {contextPath} from "./context";
 import {DlqPage} from "./pages/DlqPage";
 import {EventExplorer} from "./pages/EventExplorer";
@@ -15,36 +15,35 @@ import {ManagementPage} from "./pages/ManagementPage";
 import {startDlqThread, stopDlqFetching} from "./redux/dlq/fetcher";
 import {startEventThread, stopEventFetching} from "./redux/events/fetcher";
 import store from "./redux/store";
-import {
-    startProcessorFetching,
-    startTokenFetching,
-    stopProcessorFetching,
-    stopTokenFetching
-} from "./redux/tokens/fetcher";
+import {startProcessorFetching, stopProcessorFetching,} from "./redux/tokens/fetcher";
 
 function AppMenu() {
     const history = useHistory();
     const location = useLocation();
     const onSelectCallback = useCallback(({key}) => {
+        if (key === "as") {
+            return;
+        }
         history.push(`${contextPath}/${key}`)
     }, [history])
 
     useEffect(() => {
-        startTokenFetching()
         startProcessorFetching()
         startDlqThread()
         startEventThread()
         return () => {
-            stopTokenFetching()
-            stopProcessorFetching()
-            stopDlqFetching()
-            stopEventFetching()
+            try {
+                stopProcessorFetching()
+                stopDlqFetching()
+                stopEventFetching()
+            } catch (e) {
+                //Ignore
+            }
         }
     }, [])
 
     const realUrl = location.pathname.startsWith(contextPath) ? location.pathname.substr(contextPath.length + 1) : location.pathname
-    console.log(`Found page to be ${location.pathname} -> ${realUrl}`)
-    const selectedKey = realUrl.length <= 1 ? "tokens" : realUrl;
+    const selectedKey = realUrl || "tokens";
     return <Menu
         mode="inline"
         defaultSelectedKeys={[selectedKey]}
@@ -54,6 +53,12 @@ function AppMenu() {
     >
         <Menu.Item key="tokens"><BranchesOutlined/> Management</Menu.Item>
         <Menu.Item key="events"><DatabaseOutlined/> Event Explorer</Menu.Item>
+
+        <Menu.Divider/>
+        <Menu.Item key={"as"}>
+            <p><a target={"_blank"} href={"https://www.axoniq.io/"}>Try Axon Server</a></p>
+        </Menu.Item>
+
     </Menu>;
 }
 

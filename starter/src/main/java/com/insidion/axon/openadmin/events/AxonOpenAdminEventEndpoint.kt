@@ -1,9 +1,6 @@
 package com.insidion.axon.openadmin.events
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.insidion.toResponse
-import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.http.ResponseEntity
+import com.insidion.axon.openadmin.EndpointService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -15,28 +12,29 @@ import java.time.Instant
 @RequestMapping("\${axon.admin.base-url:axon-admin}")
 class AxonOpenAdminEventEndpoint(
     private val eventTailingService: EventTailingService,
-    @Qualifier("axonOpenAdmin")
-    private val objectMapper: ObjectMapper,
+    private val endpointService: EndpointService,
 ) {
     @GetMapping("/index")
-    fun getIndex(@RequestParam(name = "sinceTime", required = false) sinceTime: String?): ResponseEntity<String> {
-        return if (sinceTime != null) {
-            eventTailingService.getIndexAt(Instant.parse(sinceTime)).toResponse(objectMapper)
-        } else eventTailingService.getCurrentIndex().toResponse(objectMapper)
+    fun getIndex(@RequestParam(name = "sinceTime", required = false) sinceTime: String?) = endpointService.ifReady {
+        if (sinceTime != null) {
+            eventTailingService.getIndexAt(Instant.parse(sinceTime))
+        } else eventTailingService.getCurrentIndex()
     }
 
 
     @GetMapping("/events")
     fun getEvents(@RequestParam(name = "sinceIndex", required = false) sinceIndex: Long?) =
-        eventTailingService.getEvents(sinceIndex).toResponse(objectMapper)
+        endpointService.ifReady { eventTailingService.getEvents(sinceIndex) }
 
     @GetMapping("/events/{aggregateId}")
     fun getEventsForAggregate(
         @PathVariable aggregateId: String,
         @RequestParam(name = "sinceIndex", required = false) sinceIndex: Long?
     ) =
-        eventTailingService.getEvents(
-            aggregateId,
-            sinceIndex ?: 0
-        ).toResponse(objectMapper)
+        endpointService.ifReady {
+            eventTailingService.getEvents(
+                aggregateId,
+                sinceIndex ?: 0
+            )
+        }
 }

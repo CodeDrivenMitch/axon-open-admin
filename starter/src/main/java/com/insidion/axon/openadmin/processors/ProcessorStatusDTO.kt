@@ -1,5 +1,7 @@
 package com.insidion.axon.openadmin.processors
 
+import com.insidion.axon.openadmin.model.SegmentDTO
+
 data class ProcessorStatusDTO(
     val name: String,
     val running: Boolean,
@@ -10,4 +12,5 @@ data class ProcessorStatusDTO(
     val batchSize: Int?,
     val type: String,
     val dlqConfigured: Boolean,
+    val segments: List<SegmentDTO>,
 )

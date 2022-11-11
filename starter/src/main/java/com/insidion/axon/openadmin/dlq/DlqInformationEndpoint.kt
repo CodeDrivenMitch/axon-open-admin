@@ -1,11 +1,9 @@
 package com.insidion.axon.openadmin.dlq
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.insidion.toResponse
+import com.insidion.axon.openadmin.EndpointService
 import org.axonframework.config.EventProcessingConfiguration
 import org.axonframework.serialization.Serializer
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,28 +16,27 @@ import java.time.Instant
 @RequestMapping("\${axon.admin.base-url:axon-admin}/dlq")
 class DlqInformationEndpoint(
     private val eventProcessingConfiguration: EventProcessingConfiguration,
-    @Qualifier("axonOpenAdmin")
-    private val objectMapper: ObjectMapper,
     private val serializer: Serializer,
+    private val endpointService: EndpointService
 ) {
     @GetMapping("overview", produces = ["application/json"])
-    fun dlqOverview(): ResponseEntity<String> {
-        return eventProcessingConfiguration.eventProcessors().keys
+    fun dlqOverview() = endpointService.ifReady {
+        eventProcessingConfiguration.eventProcessors().keys
             .associateWith { name ->
                 eventProcessingConfiguration.deadLetterQueue(name)
                     .map { dlq ->
                         DlqGenericInformation(dlq.amountOfSequences(), dlq.size())
                     }
                     .orElse(null)
-            }.toResponse(objectMapper)
+            }
     }
 
     @GetMapping("items/{processor}", produces = ["application/json"])
-    fun processorMessages(@PathVariable processor: String): ResponseEntity<String> {
+    fun processorMessages(@PathVariable processor: String) = endpointService.ifReady {
         val dlq = eventProcessingConfiguration.deadLetterQueue(processor)
             .orElseThrow { IllegalArgumentException("There is no dlq configured for processor $processor") }
         val sequencingPolicy = eventProcessingConfiguration.sequencingPolicy(processor)
-        val map = dlq.deadLetters().map {
+        dlq.deadLetters().map {
             val list = it.toList()
             val i = list.first()
             val firstMessage = i.message()
@@ -58,7 +55,6 @@ class DlqInformationEndpoint(
                 i.cause().map { c -> c.message() }.orElse(null),
             )
         }.distinctBy { it.sequence }
-        return map.toResponse(objectMapper)
     }
 
     @PostMapping("items/{processorName}/{sequence}/retry", produces = ["application/json"])

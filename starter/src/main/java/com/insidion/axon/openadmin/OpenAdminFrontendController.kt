@@ -17,7 +17,7 @@ class OpenAdminFrontendController(
     @Value("\${server.servlet.context-path:}")
     val contextPath: String,
 ) {
-    @GetMapping(value = ["", "/", "/tokens", "/processors", "/events"], produces = ["text/html"])
+    @GetMapping(value = ["", "/", "/tokens", "/events"], produces = ["text/html"])
     @ResponseBody
     fun serveFrontend(): String {
         val stream = ResourceUtils.getURL("classpath:static/axon-admin/index.html").openStream()

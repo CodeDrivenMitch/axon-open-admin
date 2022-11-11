@@ -67,14 +67,14 @@ export async function executeCommands(commands: TokenCommand[]) {
             // Ignore 204, this means it's the wrong node
             commandTodo.success = true
             commandTodo.loading = false
+            finished = !!commandsWithProgress.find(i => i.error != null) || commandsWithProgress.map(i => i.success).reduce((a, b) => a && b, true) || cancellationTriggered
+            updateModal(commandsWithProgress)
         } else if (commandTodo.attempt > 9) {
             commandTodo.loading = false
             commandTodo.error = (await result.json()).error
+            finished = true
         }
 
-        console.log(commandsWithProgress)
-        finished = !!commandsWithProgress.find(i => i.error != null) || commandsWithProgress.map(i => i.success).reduce((a, b) => a && b, true) || cancellationTriggered
-        updateModal(commandsWithProgress)
     }
 
     store.dispatch(reportCommandsFinished())
