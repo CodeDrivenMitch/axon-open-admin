@@ -1,6 +1,7 @@
 package com.insidion.axon.openadmin.events
 
 import com.insidion.axon.openadmin.EndpointService
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -10,6 +11,7 @@ import java.time.Instant
 
 @RestController
 @RequestMapping("\${axon.admin.base-url:axon-admin}")
+@CrossOrigin
 class AxonOpenAdminEventEndpoint(
     private val eventTailingService: EventTailingService,
     private val endpointService: EndpointService,

@@ -1,4 +1,17 @@
-package com.insidion.axon.openadmin.model
+package com.insidion.axon.openadmin.processors
+
+data class ProcessorStatusDTO(
+    val name: String,
+    val running: Boolean,
+    val error: Boolean,
+    val resettable: Boolean,
+    val activeProcessorThreads: Int?,
+    val availableProcessorThreads: Int,
+    val batchSize: Int?,
+    val type: String,
+    val dlqConfigured: Boolean,
+    val segments: List<SegmentDTO>,
+)
 
 data class TokenInformationDTO(
     val nodeId: String,

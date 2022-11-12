@@ -36,7 +36,7 @@ export function ReplayAction({row}: { row: ProcessorOverviewData }) {
             await execute(false)
         }
         setLoading(false)
-    }, [row.processorName, row.nodes])
+    }, [row.processorName, row.nodes, row.dlqSize, row.dlqAvailable])
 
     return <ReplayActionMessage>
         <Popconfirm

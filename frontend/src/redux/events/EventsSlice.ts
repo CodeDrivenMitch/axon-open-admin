@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
 import _ from "lodash";
 import moment from "moment";
-import {contextPath} from "../../context";
+import {backendServers} from "../../context";
 import {EventModel} from "./models";
 
 export interface EventsSliceState {
@@ -16,6 +16,7 @@ export interface EventsSliceState {
 }
 
 export interface EventTailingConfiguration {
+    backend: string,
     type: "range" | "aggregate" | "tailing",
     tailingHistorySize: number,
     rangeDateStart: string,
@@ -36,7 +37,7 @@ export const applyConfiguration = createAsyncThunk(
     'events/applyconfig',
     async (configuration: EventTailingConfiguration, {dispatch, extra}) => {
         if (configuration.type === "tailing") {
-            const response = await fetch(`${contextPath}/index`, {method: 'GET'});
+            const response = await fetch(`${backendServers[configuration.backend]}/index`, {method: 'GET'});
             const index = await response.json()
             return {
                 configuration,
@@ -44,7 +45,7 @@ export const applyConfiguration = createAsyncThunk(
             }
         }
         if (configuration.type === "range") {
-            const response = await fetch(`${contextPath}/index?sinceTime=${configuration.rangeDateStart}`, {method: 'GET'});
+            const response = await fetch(`${backendServers[configuration.backend]}/index?sinceTime=${configuration.rangeDateStart}`, {method: 'GET'});
             const index = await response.json()
             return {
                 configuration,
@@ -67,7 +68,7 @@ export const tailEvents = createAsyncThunk(
         const state = (getState() as any).events as EventsSliceState;
         console.log(state)
         if (state.configuration?.type === "aggregate") {
-            const response = await fetch(`${contextPath}/events/${state.configuration.aggregateId}?sinceIndex=${(state.currentIndex === null ? -1 : state.currentIndex) + 1}`, {method: 'GET'});
+            const response = await fetch(`${backendServers[state.configuration.backend]}/events/${state.configuration.aggregateId}?sinceIndex=${(state.currentIndex === null ? -1 : state.currentIndex) + 1}`, {method: 'GET'});
             if (response.ok) {
                 return {
                     items: await response.json() as EventModel[],
@@ -75,7 +76,7 @@ export const tailEvents = createAsyncThunk(
                 }
             }
         }
-        const response = await fetch(`${contextPath}/events?sinceIndex=${state.currentIndex}`, {method: 'GET'});
+        const response = await fetch(`${backendServers[state.configuration!!.backend]}/events?sinceIndex=${state.currentIndex}`, {method: 'GET'});
         if (response.ok) {
             return {
                 items: await response.json() as EventModel[],

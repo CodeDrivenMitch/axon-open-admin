@@ -1,4 +1,5 @@
 import {Popover, Space, Table, Tag, Typography} from "antd";
+import _ from "lodash";
 import React from "react";
 import {Link} from "react-router-dom";
 import {
@@ -17,16 +18,19 @@ import {ReleaseAction} from "./actions/ReleaseAction";
 import {NodeDetailData, ProcessorOverviewData, SegmentDetailData} from "./ProcessorOverviewData";
 
 function ProcessorTable({rows}: { rows: ProcessorOverviewData[] }) {
+    const services = _.uniq(rows.map(r => r.service))
     return (
         <Table dataSource={rows} pagination={false} size={"small"} expandable={{
             expandedRowRender: row => renderProcessorDetail(row),
         }}>
+            {services.length > 1 && <Table.Column title="Service" key="service"
+                                                  render={row => row.service}/>}
             <Table.Column title="Processor" key="processorName"
-                          render={row => ({children: <ProcessorTitle row={row}/>, props: {rowSpan: row.rowSpan}})}/>
+                          render={row => <ProcessorTitle row={row}/>}/>
             <Table.Column title="Actions" key="processorActions"
-                          render={row => ({children: <ProcessorActions row={row}/>, props: {rowSpan: row.rowSpan}})}/>
+                          render={row => <ProcessorActions row={row}/>}/>
             <Table.Column title={ColumnTitleDLQ} key="dlq"
-                          render={row => ({children: <ProcessorDlq row={row}/>, props: {rowSpan: row.rowSpan}})}/>
+                          render={row => <ProcessorDlq row={row}/>}/>
             <Table.Column title="Node Status" key="status"
                           render={row => {
                               if (row.numberOfRunningNodes === row.numberOfNodes) {

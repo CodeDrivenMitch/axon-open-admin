@@ -1,13 +1,13 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
-import dlqReducers from "./dlq/DlqSlice";
+import commandSliceReducers from "./command/slice";
 import eventStoreReducers from "./events/EventsSlice";
-import tokenSliceReducers from "./tokens/TokenSlice";
+import overviewSliceReducers from "./overview/slice";
 
 const store = configureStore({
     reducer: combineReducers({
-        token: tokenSliceReducers,
+        command: commandSliceReducers,
         events: eventStoreReducers,
-        dlq: dlqReducers
+        overview: overviewSliceReducers,
     })
 })
 

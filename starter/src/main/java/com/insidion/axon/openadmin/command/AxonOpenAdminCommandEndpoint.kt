@@ -3,6 +3,7 @@ package com.insidion.axon.openadmin.command
 import com.insidion.axon.openadmin.NodeIdProvider
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("\${axon.admin.base-url:axon-admin}")
+@CrossOrigin
 class AxonOpenAdminCommandEndpoint(
     private val handlers: List<AxonAdminCommandHandler>,
     private val nodeIdProvider: NodeIdProvider,

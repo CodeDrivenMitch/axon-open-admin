@@ -3,7 +3,7 @@ import moment from "moment";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import EventTableContainer from "../components/events/EventTableContainer";
-import {contextPath} from "../context";
+import {backendServers} from "../context";
 import {
     applyConfiguration,
     clearConfiguration,
@@ -21,20 +21,22 @@ export function EventExplorer() {
     const loading = useSelector(initialLoadingSelector)
     const tailingActive = useSelector(isActiveSelector)
     const isPaused = useSelector(isPausedSelector)
+    const [backend, setBackend] = useState(Object.keys(backendServers)[0])
     const [explorerType, setExplorerType] = useState("tailing")
     const [rangeIndexStart, setRangeIndexStart] = useState(null as null | number)
     const [rangeIndexEnd, setRangeIndexEnd] = useState(null as null | number)
+    const dispatch = useDispatch()
 
     const calculateRange = useCallback(() => {
         if (form.getFieldValue("type") === "range" && form.getFieldValue("rangeDateStart") && form.getFieldValue("rangeDateEnd")) {
-            fetch(encodeURI(`${contextPath}/index?sinceTime=${form.getFieldValue("rangeDateStart").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`), {method: 'GET'})
+            fetch(encodeURI(`${backendServers[backend]}/index?sinceTime=${form.getFieldValue("rangeDateStart").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`), {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexStart(null))
                 .then(setRangeIndexStart);
-            fetch(`${contextPath}/index?sinceTime=${form.getFieldValue("rangeDateEnd").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`, {method: 'GET'})
+            fetch(`${backendServers[backend]}/index?sinceTime=${form.getFieldValue("rangeDateEnd").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`, {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexEnd(null))
                 .then(setRangeIndexEnd);
         } else if (form.getFieldValue("type") === "tailing") {
-            fetch(`${contextPath}/index`, {method: 'GET'})
+            fetch(`${backendServers[backend]}/index`, {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexStart(null))
                 .then((currentIndex) => {
                     setRangeIndexEnd(currentIndex);
@@ -44,16 +46,19 @@ export function EventExplorer() {
 
         }
 
-    }, [form, setRangeIndexEnd, setRangeIndexStart])
+    }, [form, setRangeIndexEnd, setRangeIndexStart, backend])
 
     const onFormChange = useCallback((changedValues: Partial<EventTailingConfiguration>, values: EventTailingConfiguration) => {
         setExplorerType(values.type)
+        if (values.backend !== backend) {
+            dispatch(clearConfiguration())
+            setBackend(values.backend)
+        }
         if (values.type !== "aggregate") {
             calculateRange()
         }
-    }, [setExplorerType, calculateRange])
+    }, [setExplorerType, calculateRange, setBackend, dispatch, backend])
 
-    const dispatch = useDispatch()
     const applyForm = async () => {
         dispatch(applyConfiguration({
             ...form.getFieldsValue(),
@@ -81,6 +86,7 @@ export function EventExplorer() {
                     wrapperCol={{span: 14}}
                     form={form}
                     initialValues={{
+                        backend: backend,
                         type: "tailing",
                         tailingHistorySize: 500,
                         rangeDateStart: moment().add(-1, 'hours').startOf('minute'),
@@ -95,6 +101,12 @@ export function EventExplorer() {
                         constantly tail for new events that were published to the event store. You can also tail a
                         specific aggregate's events.
                     </p>
+                    {Object.keys(backendServers).length > 1 && <Form.Item label="Backend" name="backend">
+                        <Radio.Group>
+                            {Object.keys(backendServers).map(server => <Radio.Button key={server}
+                                                                                     value={server}>{server}</Radio.Button>)}
+                        </Radio.Group>
+                    </Form.Item>}
                     <Form.Item label="Explorer type" name="type">
                         <Radio.Group>
                             <Radio.Button value="tailing">Tail</Radio.Button>

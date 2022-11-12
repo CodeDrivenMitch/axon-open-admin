@@ -6,30 +6,20 @@ import org.axonframework.config.EventProcessingConfiguration
 import org.axonframework.serialization.Serializer
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import java.time.Instant
 
 @Controller
 @RequestMapping("\${axon.admin.base-url:axon-admin}/dlq")
-class DlqInformationEndpoint(
+@CrossOrigin
+class DlqActionEndpoint(
     private val eventProcessingConfiguration: EventProcessingConfiguration,
     private val serializer: Serializer,
     private val endpointService: EndpointService
 ) {
-    @GetMapping("overview", produces = ["application/json"])
-    fun dlqOverview() = endpointService.ifReady {
-        eventProcessingConfiguration.eventProcessors().keys
-            .associateWith { name ->
-                eventProcessingConfiguration.deadLetterQueue(name)
-                    .map { dlq ->
-                        DlqGenericInformation(dlq.amountOfSequences(), dlq.size())
-                    }
-                    .orElse(null)
-            }
-    }
 
     @GetMapping("items/{processor}", produces = ["application/json"])
     fun processorMessages(@PathVariable processor: String) = endpointService.ifReady {
@@ -97,22 +87,4 @@ class DlqInformationEndpoint(
         else serializer.serialize(this, String::class.java).data
     }
 
-    data class DlqGenericInformation(
-        val numberOfSequences: Long,
-        val numberOfMessages: Long,
-    )
-
-    data class DlqItem(
-        val sequence: String,
-        val amount: Int,
-        val enqueuedAt: Instant,
-        val lastTouched: Instant,
-        val eventIdentifier: String,
-        val payloadType: String,
-        val payload: Any?,
-        val metadata: Any?,
-        val diagnostics: Any?,
-        val causeType: String?,
-        val causeMessage: String?,
-    )
 }

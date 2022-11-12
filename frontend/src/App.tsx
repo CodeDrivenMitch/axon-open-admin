@@ -12,10 +12,9 @@ import {contextPath} from "./context";
 import {DlqPage} from "./pages/DlqPage";
 import {EventExplorer} from "./pages/EventExplorer";
 import {ManagementPage} from "./pages/ManagementPage";
-import {startDlqThread, stopDlqFetching} from "./redux/dlq/fetcher";
 import {startEventThread, stopEventFetching} from "./redux/events/fetcher";
+import {startOverviewFetching, stopOverviewFetching,} from "./redux/overview/fetcher";
 import store from "./redux/store";
-import {startProcessorFetching, stopProcessorFetching,} from "./redux/tokens/fetcher";
 
 function AppMenu() {
     const history = useHistory();
@@ -28,13 +27,11 @@ function AppMenu() {
     }, [history])
 
     useEffect(() => {
-        startProcessorFetching()
-        startDlqThread()
+        startOverviewFetching()
         startEventThread()
         return () => {
             try {
-                stopProcessorFetching()
-                stopDlqFetching()
+                stopOverviewFetching()
                 stopEventFetching()
             } catch (e) {
                 //Ignore

@@ -1,5 +1,6 @@
 export interface ProcessorOverviewData {
     key: string,
+    service: string,
     processorName: string,
     numberOfNodes: number,
     numberOfRunningNodes: number,

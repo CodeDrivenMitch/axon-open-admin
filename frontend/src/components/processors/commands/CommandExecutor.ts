@@ -1,11 +1,11 @@
 import {contextPath} from "../../../context";
-import store from "../../../redux/store";
 import {
     closeProgressModal,
     openProgressModal,
     reportCommandsFinished,
     updateProgressModal
-} from "../../../redux/tokens/TokenSlice";
+} from "../../../redux/command/slice";
+import store from "../../../redux/store";
 import {TokenCommand} from "./Commands";
 
 interface CommandWithProgress {

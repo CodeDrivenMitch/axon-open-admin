@@ -7,7 +7,7 @@ import {
     commandsFinished,
     progressItems,
     progressModalOpened
-} from "../../../redux/tokens/TokenSlice";
+} from "../../../redux/command/slice";
 import {cancelCommandExecution} from "./CommandExecutor";
 
 

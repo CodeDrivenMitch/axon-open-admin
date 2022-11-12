@@ -4,13 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import javax.annotation.PostConstruct
 
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ComponentScan("com.insidion.axon.openadmin")
+@EnableConfigurationProperties(AxonAdminProperties::class)
 class AxonAdminConfiguration(
     @Value("\${server.servlet.context-path:}")
     val contextPath: String,
