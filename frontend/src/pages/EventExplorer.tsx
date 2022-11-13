@@ -3,7 +3,7 @@ import moment from "moment";
 import React, {useCallback, useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import EventTableContainer from "../components/events/EventTableContainer";
-import {backendServers} from "../context";
+import {services} from "../context";
 import {
     applyConfiguration,
     clearConfiguration,
@@ -21,7 +21,7 @@ export function EventExplorer() {
     const loading = useSelector(initialLoadingSelector)
     const tailingActive = useSelector(isActiveSelector)
     const isPaused = useSelector(isPausedSelector)
-    const [backend, setBackend] = useState(Object.keys(backendServers)[0])
+    const [backend, setBackend] = useState(Object.keys(services)[0])
     const [explorerType, setExplorerType] = useState("tailing")
     const [rangeIndexStart, setRangeIndexStart] = useState(null as null | number)
     const [rangeIndexEnd, setRangeIndexEnd] = useState(null as null | number)
@@ -29,14 +29,14 @@ export function EventExplorer() {
 
     const calculateRange = useCallback(() => {
         if (form.getFieldValue("type") === "range" && form.getFieldValue("rangeDateStart") && form.getFieldValue("rangeDateEnd")) {
-            fetch(encodeURI(`${backendServers[backend]}/index?sinceTime=${form.getFieldValue("rangeDateStart").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`), {method: 'GET'})
+            fetch(encodeURI(`${services[backend]}/index?sinceTime=${form.getFieldValue("rangeDateStart").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`), {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexStart(null))
                 .then(setRangeIndexStart);
-            fetch(`${backendServers[backend]}/index?sinceTime=${form.getFieldValue("rangeDateEnd").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`, {method: 'GET'})
+            fetch(`${services[backend]}/index?sinceTime=${form.getFieldValue("rangeDateEnd").utc().format('YYYY-MM-DDTHH:mm:ss')}Z`, {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexEnd(null))
                 .then(setRangeIndexEnd);
         } else if (form.getFieldValue("type") === "tailing") {
-            fetch(`${backendServers[backend]}/index`, {method: 'GET'})
+            fetch(`${services[backend]}/index`, {method: 'GET'})
                 .then((res) => res.json(), () => setRangeIndexStart(null))
                 .then((currentIndex) => {
                     setRangeIndexEnd(currentIndex);
@@ -101,10 +101,10 @@ export function EventExplorer() {
                         constantly tail for new events that were published to the event store. You can also tail a
                         specific aggregate's events.
                     </p>
-                    {Object.keys(backendServers).length > 1 && <Form.Item label="Backend" name="backend">
+                    {Object.keys(services).length > 1 && <Form.Item label="Backend" name="backend">
                         <Radio.Group>
-                            {Object.keys(backendServers).map(server => <Radio.Button key={server}
-                                                                                     value={server}>{server}</Radio.Button>)}
+                            {Object.keys(services).map(server => <Radio.Button key={server}
+                                                                               value={server}>{server}</Radio.Button>)}
                         </Radio.Group>
                     </Form.Item>}
                     <Form.Item label="Explorer type" name="type">

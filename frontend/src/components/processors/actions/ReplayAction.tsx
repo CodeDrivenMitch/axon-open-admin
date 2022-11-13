@@ -13,14 +13,13 @@ export function ReplayAction({row}: { row: ProcessorOverviewData }) {
     const onStopAction = useCallback(async () => {
         setLoading(true)
         const {confirm} = Modal;
-
         async function execute(withDlqReset: boolean) {
             executeCommands(
                 [
-                    ...row.nodes.filter(node => node.running).map(node => new StopCommand(node.nodeId, row.processorName)),
-                    withDlqReset ? new ClearDlqCommand(row.nodes[0].nodeId, row.processorName) : null,
-                    new ResetCommand(row.nodes[0].nodeId, row.processorName),
-                    ...row.nodes.map(node => new StartCommand(node.nodeId, row.processorName)),
+                    ...row.nodes.filter(node => node.running).map(node => new StopCommand(row.service, node.nodeId, row.processorName)),
+                    withDlqReset ? new ClearDlqCommand(row.service, row.nodes[0].nodeId, row.processorName) : null,
+                    new ResetCommand(row.service, row.nodes[0].nodeId, row.processorName),
+                    ...row.nodes.map(node => new StartCommand(row.service, node.nodeId, row.processorName)),
                 ].filter(c => !!c) as TokenCommand[]
             )
         }
@@ -36,7 +35,7 @@ export function ReplayAction({row}: { row: ProcessorOverviewData }) {
             await execute(false)
         }
         setLoading(false)
-    }, [row.processorName, row.nodes, row.dlqSize, row.dlqAvailable])
+    }, [row.processorName, row.nodes, row.dlqSize, row.dlqAvailable, row.service])
 
     return <ReplayActionMessage>
         <Popconfirm

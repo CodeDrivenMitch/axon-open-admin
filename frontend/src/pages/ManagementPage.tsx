@@ -1,4 +1,4 @@
-import {Card, Space} from "antd";
+import {Card, Space, Typography} from "antd";
 import _ from "lodash";
 import React from "react";
 import {useSelector} from "react-redux";
@@ -12,7 +12,7 @@ export function ManagementPage() {
     return <Space direction={"vertical"} size={"large"}>
         {services.map(service => {
             return <Card key={service}
-                         title={`Processor status of service ${service}`}>
+                         title={<Typography.Text strong>Processor status of service {service}</Typography.Text>}>
                 <ProcessorTable
                     rows={mapProcessorInformationToDataSource(nodeInformation.filter(ni => ni.service === service))}/>
             </Card>

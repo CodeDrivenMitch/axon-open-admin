@@ -1,18 +1,21 @@
 export interface TokenCommand {
+    service: string
     nodeId: string
     description: string
     provideCommand: () => any
 }
 
 export class StartCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
 
-    constructor(nodeId: string, processorName: string) {
+    constructor(service: string, nodeId: string, processorName: string) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
-        this.description = `Starting processor ${processorName} on node ${nodeId}`
+        this.description = `Starting processor ${processorName} on node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {
@@ -25,14 +28,16 @@ export class StartCommand implements TokenCommand {
 }
 
 export class StopCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
 
-    constructor(nodeId: string, processorName: string) {
+    constructor(service: string, nodeId: string, processorName: string) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
-        this.description = `Stopping processor ${processorName} on node ${nodeId}`
+        this.description = `Stopping processor ${processorName} on node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {
@@ -45,16 +50,18 @@ export class StopCommand implements TokenCommand {
 }
 
 export class SplitSegmentCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
     segment: number;
 
-    constructor(nodeId: string, processorName: string, segment: number) {
+    constructor(service: string, nodeId: string, processorName: string, segment: number) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
         this.segment = segment
-        this.description = `Splitting segment ${segment} for processor ${processorName} on node ${nodeId}`
+        this.description = `Splitting segment ${segment} for processor ${processorName} on node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {
@@ -68,16 +75,18 @@ export class SplitSegmentCommand implements TokenCommand {
 }
 
 export class MergeSegmentCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
     segment: number;
 
-    constructor(nodeId: string, processorName: string, segment: number) {
+    constructor(service: string, nodeId: string, processorName: string, segment: number) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
         this.segment = segment
-        this.description = `Merging segment ${segment} for processor ${processorName} on node ${nodeId}`
+        this.description = `Merging segment ${segment} for processor ${processorName} on node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {
@@ -91,16 +100,18 @@ export class MergeSegmentCommand implements TokenCommand {
 }
 
 export class ReleaseSegmentCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
     segment: number;
 
-    constructor(nodeId: string, processorName: string, segment: number) {
+    constructor(service: string, nodeId: string, processorName: string, segment: number) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
         this.segment = segment
-        this.description = `Releasing segment ${segment} for processor ${processorName} on node ${nodeId}`
+        this.description = `Releasing segment ${segment} for processor ${processorName} on node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {
@@ -114,14 +125,16 @@ export class ReleaseSegmentCommand implements TokenCommand {
 }
 
 export class ResetCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
 
-    constructor(nodeId: string, processorName: string) {
+    constructor(service: string, nodeId: string, processorName: string) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
-        this.description = `Resetting processor ${processorName}`
+        this.description = `Resetting processor ${processorName} using node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {
@@ -134,14 +147,16 @@ export class ResetCommand implements TokenCommand {
 }
 
 export class ClearDlqCommand implements TokenCommand {
+    service: string;
     nodeId: string;
     processorName: string;
     description: string;
 
-    constructor(nodeId: string, processorName: string) {
+    constructor(service: string, nodeId: string, processorName: string) {
+        this.service = service;
         this.nodeId = nodeId;
         this.processorName = processorName
-        this.description = `Clearing DLQ for processor ${processorName} using node ${nodeId}`
+        this.description = `Clearing DLQ for processor ${processorName} using node ${nodeId} of service ${service}`
     }
 
     provideCommand(): any {

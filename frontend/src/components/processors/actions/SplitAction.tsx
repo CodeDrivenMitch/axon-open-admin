@@ -21,7 +21,7 @@ export function SplitAction({row}: { row: ProcessorOverviewData }) {
             return previousValue
         }, null);
         await executeCommands([
-                new SplitSegmentCommand(chosenSegment?.nodeId!!, row.processorName, chosenSegment!!.id),
+                new SplitSegmentCommand(row.service, chosenSegment?.nodeId!!, row.processorName, chosenSegment!!.id),
             ]
         )
         setLoading(false)

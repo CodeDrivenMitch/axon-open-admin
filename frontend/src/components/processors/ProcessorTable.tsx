@@ -65,6 +65,58 @@ function ProcessorTable({rows}: { rows: ProcessorOverviewData[] }) {
                               }
                               return <Tag color={"green"}>{text}</Tag>
                           }}/>
+            <Table.Column title="Warnings" key="warnings"
+                          render={row => {
+                              if (row.warnings.multipleTokenStoreIdentifiers) {
+                                  return <Popover
+                                      title={<Typography.Text strong>Multiple token stores</Typography.Text>}
+                                      content={<p>Multiple token stores were detected for this processor. <br/>
+                                          This means multiple applications are running as the same component <br/>
+                                          but with a
+                                          different database. Events are now processed more than once. <br/>
+                                      </p>}>
+                                      <Tag color={"red"}>Multiple token stores detected!</Tag>
+                                  </Popover>
+                              }
+
+                              if (row.warnings.doubleClaimedSegments.length > 0) {
+                                  return <Popover title={<Typography.Text strong>Double claims</Typography.Text>}
+                                                  content={<p>Some segments of this processor are claimed by multiple
+                                                      nodes <br/>This could mean the <a
+                                                          href={"https://docs.axoniq.io/reference-guide/axon-framework/events/event-processors/streaming#token-stealing"}>token
+                                                          has been stolen because processing took too long</a>. </p>}>
+                                      <Tag color={"red"}>Token stealing detected!</Tag>
+                                  </Popover>
+                              }
+
+                              if (row.warnings.unclaimedSegments && row.numberOfRunningNodes > 0 && row.threadsAvailable === 0) {
+                                  return <Popover title={<Typography.Text strong>Unclaimed segments because of a lack of
+                                      threads</Typography.Text>}
+                                                  content={<p>Some segments of this processor are not claimed by any
+                                                      node. <br/>
+                                                      This is because you are using a TrackingEventProcessor, but the
+                                                      number of segments is higher than the number of available
+                                                      threads. <br/>
+                                                      Please take a look at the <a
+                                                          href={"https://docs.axoniq.io/reference-guide/axon-framework/events/event-processors/streaming#thread-configuration"}>documentation</a> to
+                                                      see how to fix this.
+                                                  </p>}>
+                                      <Tag color={"red"}>Not enough threads!</Tag>
+                                  </Popover>
+                              }
+                              if (row.warnings.unclaimedSegments && row.numberOfRunningNodes > 0) {
+                                  return <Popover title={<Typography.Text strong>Unclaimed segments</Typography.Text>}
+                                                  content={<p>Some segments of this processor are not claimed by any
+                                                      node. <br/>
+                                                      There seem to be enough threads available, so one of the segment
+                                                      is most likely throwing errors and is in is retry mode. <br/>
+                                                      Take a look at your logs for more information.
+                                                  </p>}>
+                                      <Tag color={"red"}>Unclaimed segments!</Tag>
+                                  </Popover>
+                              }
+                              return <></>
+                          }}/>
         </Table>
     );
 }
@@ -114,15 +166,16 @@ function renderSegmentDetail(data: NodeDetailData) {
                       render={row => row.mergeableSegment === row.id ? '-' : row.mergeableSegment}/>
         <Table.Column title="Actions" key="actions"
                       render={row => <div>
-                          <ReleaseAction segment={row.id} processorName={data.processorName} nodeId={data.nodeId}/>
+                          <ReleaseAction segment={row.id} processorName={data.processorName} nodeId={data.nodeId}
+                                         service={data.service}/>
                       </div>}/>
     </Table>
 }
 
 function ProcessorTitle({row}: { row: ProcessorOverviewData }) {
-    return <Space>
-        <Typography.Title level={5}>{row.processorName} {row.replaying &&
-            <Tag color={"orange"}>Replaying</Tag>}</Typography.Title>
+    return <Space direction={"horizontal"}>
+        <Typography.Title level={5}>{row.processorName}</Typography.Title>
+        {row.replaying && <Tag color={"orange"}>Replaying</Tag>}
     </Space>
 }
 

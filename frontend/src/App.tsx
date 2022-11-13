@@ -8,7 +8,7 @@ import React, {useCallback, useEffect} from 'react';
 import {Provider, useSelector} from "react-redux";
 import {BrowserRouter, Route, useHistory, useLocation} from "react-router-dom";
 import {CommandProgressModal} from "./components/processors/commands/CommandProgressModal";
-import {backendServers, contextPath} from "./context";
+import {contextPath, services} from "./context";
 import {DlqPage} from "./pages/DlqPage";
 import {EventExplorer} from "./pages/EventExplorer";
 import {ManagementPage} from "./pages/ManagementPage";
@@ -113,7 +113,7 @@ function OfflineBackendsAlert() {
                       description={<div>
                           Data might be incomplete because the following backends are could not be reached:
                           <ul>
-                              {offlineBackends.map(be => <li key={be}>{be}: {backendServers[be]}</li>)}
+                              {offlineBackends.map(be => <li key={be}>{be}: {services[be].join(", ")}</li>)}
                           </ul>
                       </div>}>
         </Alert>

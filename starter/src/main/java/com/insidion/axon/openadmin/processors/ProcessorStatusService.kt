@@ -23,6 +23,7 @@ class ProcessorStatusService(
                 val properties = eventProcessingProperties.processors[it.name]
                 ProcessorStatusDTO(
                     name = name,
+                    tokenStoreIdentifier = it.tokenStoreIdentifier,
                     running = it.isRunning,
                     error = it.isError,
                     resettable = it.supportsReset(),

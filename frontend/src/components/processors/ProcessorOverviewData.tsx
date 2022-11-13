@@ -12,12 +12,18 @@ export interface ProcessorOverviewData {
     threadsActive: number,
     dlqAvailable: boolean,
     dlqSize: number | undefined,
-    nodes: NodeDetailData[]
+    nodes: NodeDetailData[],
+    warnings: {
+        multipleTokenStoreIdentifiers: boolean,
+        doubleClaimedSegments: string[],
+        unclaimedSegments: boolean
+    }
 }
 
 export interface NodeDetailData {
     key: string,
     nodeId: string,
+    service: string,
     processorName: string,
     processorType: string,
     running: boolean,

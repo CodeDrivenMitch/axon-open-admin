@@ -21,7 +21,7 @@ export function MergeAction({row}: { row: ProcessorOverviewData }) {
             return previousValue
         }, null);
         await executeCommands([
-                new MergeSegmentCommand(chosenSegment?.nodeId!!, row.processorName, chosenSegment!!.id),
+                new MergeSegmentCommand(row.service, chosenSegment?.nodeId!!, row.processorName, chosenSegment!!.id),
             ]
         )
         setLoading(false)

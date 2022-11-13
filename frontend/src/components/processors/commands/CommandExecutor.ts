@@ -1,4 +1,4 @@
-import {contextPath} from "../../../context";
+import {services} from "../../../context";
 import {
     closeProgressModal,
     openProgressModal,
@@ -62,16 +62,31 @@ export async function executeCommands(commands: TokenCommand[]) {
         updateModal(commandsWithProgress)
         await timeout();
 
-        const result = await fetch(`${contextPath}/command`, {method: 'POST', body: JSON.stringify(commandTodo.command.provideCommand()), headers: {"Content-Type": "application/json"}})
-        if (result.ok && result.status === 200) {
+        let result = null;
+        for (const service of services[commandTodo.command.service]) {
+            try {
+                result = await fetch(`${service}/command`, {
+                    method: 'POST',
+                    body: JSON.stringify(commandTodo.command.provideCommand()),
+                    headers: {"Content-Type": "application/json"}
+                })
+                if (result.ok && result.status === 200) {
+                    break;
+                }
+            } catch (e) {
+                // Ignore
+            }
+        }
+
+        if (result !== null && result.ok) {
             // Ignore 204, this means it's the wrong node
             commandTodo.success = true
             commandTodo.loading = false
-            finished = !!commandsWithProgress.find(i => i.error != null) || commandsWithProgress.map(i => i.success).reduce((a, b) => a && b, true) || cancellationTriggered
+            finished = !!commandsWithProgress.find(i => i.error != null) || commandsWithProgress.map(i => i.success)
+                .reduce((a, b) => a && b, true) || cancellationTriggered
             updateModal(commandsWithProgress)
         } else if (commandTodo.attempt > 9) {
             commandTodo.loading = false
-            commandTodo.error = (await result.json()).error
             finished = true
         }
 

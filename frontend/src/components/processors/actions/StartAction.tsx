@@ -12,10 +12,10 @@ export function StartAction({row}: { row: ProcessorOverviewData }) {
     const onStartAction = useCallback(async () => {
         setLoading(true)
         await executeCommands(
-            row.nodes.filter(node => !node.running).map(node => new StartCommand(node.nodeId, row.processorName))
+            row.nodes.filter(node => !node.running).map(node => new StartCommand(row.service, node.nodeId, row.processorName))
         )
         setLoading(false)
-    }, [row.processorName, row.nodes])
+    }, [row.processorName, row.nodes, row.service])
 
     return <StartActionMessage>
         <Button type="default" loading={loading} onClick={onStartAction}

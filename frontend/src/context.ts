@@ -10,7 +10,7 @@ function getContentPath() {
 function getBackendServers() {
     // @ts-ignore
     if (window.backendServers.startsWith("__")) {
-        return `{"local": "/axon-admin", "8080": "http://localhost:8080/axon-admin", "8081": "http://localhost:8081/axon-admin"}`
+        return `{"inventory": ["http://localhost:8081/axon-admin"], "booking": ["http://localhost:8088/axon-admin", "http://localhost:8080/axon-admin", "/axon-admin"]}`
     }
     // @ts-ignore
     return window.backendServers
@@ -20,7 +20,7 @@ function getBackendServers() {
 console.log("context-path is " + getContentPath())
 export const contextPath = getContentPath()
 // @ts-ignore
-export const backendServers = JSON.parse(getBackendServers()) as { [name: string]: string }
+export const services = JSON.parse(getBackendServers()) as { [name: string]: string[] }
 
 const pathname = window.location.pathname;
 const realUrl = pathname.startsWith(contextPath) ? pathname.substr(contextPath.length + 1) : pathname

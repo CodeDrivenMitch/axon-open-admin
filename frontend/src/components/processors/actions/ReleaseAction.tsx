@@ -6,20 +6,18 @@ import {executeCommands} from "../commands/CommandExecutor";
 import {ReleaseSegmentCommand} from "../commands/Commands";
 
 export function ReleaseAction({
-                                  nodeId,
-                                  segment,
-                                  processorName
-                              }: { nodeId: string, processorName: string, segment: number, }) {
+                                  nodeId, segment, processorName, service
+                              }: { nodeId: string, processorName: string, segment: number, service: string }) {
     const [loading, setLoading] = useState(false)
 
     const onReleaseAction = useCallback(async () => {
         setLoading(true)
         await executeCommands([
-                new ReleaseSegmentCommand(nodeId, processorName, segment)
+                new ReleaseSegmentCommand(service, nodeId, processorName, segment)
             ]
         )
         setLoading(false)
-    }, [processorName, segment, nodeId])
+    }, [processorName, segment, nodeId, service])
 
     return <ReleaseActionMessage>
         <Button type="default" loading={loading}

@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSelector, createSlice, PayloadAction} from '@reduxjs/toolkit'
-import {backendServers} from "../../context";
+import {services} from "../../context";
 import {BackendInformation, NodeInformation} from "./models";
 
 export interface OverviewSliceState {
@@ -11,21 +11,21 @@ export const fetchOverview = createAsyncThunk(
     'overview/get',
     async () => {
         const results: { [name: string]: any } = {}
-        for (const backendServer in backendServers) {
-            try {
-                let response = await fetch(`${backendServers[backendServer]}/overview`, {method: 'GET'});
-                if (response.ok) {
-                    results[backendServer] = {
-                        success: true,
-                        content: await response.json()
-                    }
-                    continue;
-                }
-            } catch (e) {
-                // Do nothing
-            }
-            results[backendServer] = {
+        for (const service in services) {
+            results[service] = {
                 success: false,
+                contents: []
+            }
+            for (const backend of services[service]) {
+                try {
+                    let response = await fetch(`${backend}/overview`, {method: 'GET'});
+                    if (response.ok) {
+                        results[service].success = true;
+                        results[service].contents.push(await response.json());
+                    }
+                } catch (e) {
+                    // Do nothing
+                }
             }
         }
         return results
@@ -36,7 +36,7 @@ const slice = createSlice({
     name: '@overview',
     initialState: {
         knownNodes: {},
-        backendStatus: Object.keys(backendServers).reduce((previousValue, currentValue) => ({
+        backendStatus: Object.keys(services).reduce((previousValue, currentValue) => ({
             ...previousValue,
             [currentValue]: {backendName: currentValue, online: false, nodes: {}}
         }), {}),
@@ -48,25 +48,27 @@ const slice = createSlice({
         [fetchOverview.fulfilled as unknown as string]: (state, action: PayloadAction<{ [name: string]: any }>) => {
             const now = new Date().getTime()
             for (const backend in action.payload) {
-                const {success, content} = action.payload[backend]
+                const {success, contents} = action.payload[backend]
                 if (!success) {
                     state.backendStatus[backend].online = false
                     continue;
                 }
                 state.backendStatus[backend].online = true
-                state.backendStatus[backend].nodes[content.nodeId] = {
-                    nodeId: content.nodeId,
-                    lastSeen: now,
-                    service: content.service
-                };
+                for (const content of contents) {
+                    state.backendStatus[backend].nodes[content.nodeId] = {
+                        nodeId: content.nodeId,
+                        lastSeen: now,
+                        service: content.service
+                    };
 
-                state.knownNodes[content.nodeId] = {
-                    nodeId: content.nodeId,
-                    service: backend,
-                    processors: content.processors.map((m: any) => ({
-                        ...m,
-                        nodeId: content.nodeId
-                    }))
+                    state.knownNodes[content.nodeId] = {
+                        nodeId: content.nodeId,
+                        service: backend,
+                        processors: content.processors.map((m: any) => ({
+                            ...m,
+                            nodeId: content.nodeId
+                        }))
+                    }
                 }
             }
             for (const backend of Object.values(state.backendStatus)) {

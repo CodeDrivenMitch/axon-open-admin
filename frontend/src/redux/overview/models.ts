@@ -30,6 +30,7 @@ export interface DlqOverviewInfo {
 export interface ProcessorStatus {
     nodeId: string,
     name: string,
+    tokenStoreIdentifier: string,
     running: boolean,
     error: boolean,
     resettable: boolean,
