@@ -4,6 +4,7 @@ import com.insidion.axon.openadmin.AxonAdminProperties
 import com.insidion.axon.openadmin.EndpointService
 import com.insidion.axon.openadmin.NodeIdProvider
 import com.insidion.axon.openadmin.dlq.DlqInformationService
+import com.insidion.axon.openadmin.insights.InsightRegistrationService
 import com.insidion.axon.openadmin.metrics.EventProcessorMetricsProvider
 import com.insidion.axon.openadmin.processors.ProcessorStatusService
 import org.springframework.stereotype.Controller
@@ -21,6 +22,7 @@ class OverviewEndpoint(
     private val axonAdminProperties: AxonAdminProperties,
     private val nodeIdProvider: NodeIdProvider,
     private val metricsProvider: EventProcessorMetricsProvider,
+    private val insightRegistrationService: InsightRegistrationService,
 ) {
     @GetMapping("", produces = ["application/json"])
     fun overview() = endpointService.ifReady {
@@ -36,7 +38,8 @@ class OverviewEndpoint(
                     dlq = dlqOverview[it.name],
                     metrics = metrics[it.name],
                 )
-            }
+            },
+            insight = insightRegistrationService.getOverview()
         )
     }
 }

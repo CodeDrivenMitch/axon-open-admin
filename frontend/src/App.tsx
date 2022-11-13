@@ -1,4 +1,4 @@
-import {BranchesOutlined, DatabaseOutlined} from "@ant-design/icons";
+import {BranchesOutlined, DatabaseOutlined, RedEnvelopeOutlined} from "@ant-design/icons";
 
 import {Alert, Layout, Menu, Space, Typography} from "antd";
 import 'antd/dist/antd.css';
@@ -12,6 +12,7 @@ import {contextPath, services} from "./context";
 import {DlqPage} from "./pages/DlqPage";
 import {EventExplorer} from "./pages/EventExplorer";
 import {ManagementPage} from "./pages/ManagementPage";
+import {MessageStatsPage} from "./pages/MessageStatsPage";
 import {startEventThread, stopEventFetching} from "./redux/events/fetcher";
 import {startOverviewFetching, stopOverviewFetching,} from "./redux/overview/fetcher";
 import {offlineBackendsSelector} from "./redux/overview/slice";
@@ -49,7 +50,8 @@ function AppMenu() {
         onSelect={onSelectCallback}
         style={{height: '100%', borderRight: 0}}
     >
-        <Menu.Item key="tokens"><BranchesOutlined/> Management</Menu.Item>
+        <Menu.Item key="tokens"><BranchesOutlined/> Processors</Menu.Item>
+        <Menu.Item key="stats"><RedEnvelopeOutlined/> Message stats</Menu.Item>
         <Menu.Item key="events"><DatabaseOutlined/> Event Explorer</Menu.Item>
 
         <Menu.Divider/>
@@ -86,6 +88,7 @@ function App() {
 
                                     <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
                                     <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
+                                    <Route path={`${contextPath}/stats`}><MessageStatsPage/></Route>
                                     <Route path={[`${contextPath}/events`]} exact={false}><EventExplorer/></Route>
                                     <Route path={[`${contextPath}/dlq/:name`]} exact={false}><DlqPage/></Route>
                                 </Space>

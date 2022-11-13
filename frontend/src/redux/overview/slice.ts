@@ -67,7 +67,8 @@ const slice = createSlice({
                         processors: content.processors.map((m: any) => ({
                             ...m,
                             nodeId: content.nodeId
-                        }))
+                        })),
+                        insight: content.insight || {handlers: [], originMessages: []}
                     }
                 }
             }

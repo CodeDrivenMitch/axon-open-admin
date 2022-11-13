@@ -2,6 +2,39 @@ export interface NodeInformation {
     nodeId: string
     service: string
     processors: NodeProcessorState[]
+    insight: InsightInfo
+}
+
+export interface MessageDefinition {
+    messageType: string,
+    payloadType: string
+}
+
+export interface InsightInfo {
+    handlers: InsightHandlerInfo[]
+    originMessages: InsightOriginMessageStats[]
+}
+
+export interface InsightHandlerInfo {
+    handler: InsightHandler
+    stats: InsightHandlerStats
+}
+
+export interface InsightHandlerStats {
+    failureCounter: number,
+    successCounter: number,
+    publishedMessages: { [key: string]: { count: number, message: MessageDefinition } }
+}
+
+export interface InsightHandler {
+    containingClass: string,
+    message: MessageDefinition,
+    signature: string
+}
+
+export interface InsightOriginMessageStats {
+    message: MessageDefinition
+    count: number
 }
 
 export interface BackendInformation {
