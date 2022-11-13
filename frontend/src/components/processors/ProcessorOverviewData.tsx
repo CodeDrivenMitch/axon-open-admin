@@ -12,6 +12,8 @@ export interface ProcessorOverviewData {
     threadsActive: number,
     dlqAvailable: boolean,
     dlqSize: number | undefined,
+    capacity: number | undefined,
+    latency: number | undefined,
     nodes: NodeDetailData[],
     warnings: {
         multipleTokenStoreIdentifiers: boolean,
@@ -33,6 +35,8 @@ export interface NodeDetailData {
     threadsActive: number | undefined,
     batchSize: number,
     behind: number,
+    capacity: number | undefined,
+    latency: number | undefined,
     claimed: SegmentDetailData[],
 }
 

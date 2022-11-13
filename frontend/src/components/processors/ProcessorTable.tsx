@@ -5,16 +5,17 @@ import {
     ColumnTitleAvailableThreads,
     ColumnTitleBatchSize,
     ColumnTitleBehind,
+    ColumnTitleCapacity,
     ColumnTitleClaimedNode,
     ColumnTitleClaimedProcessor,
     ColumnTitleDLQ,
+    ColumnTitleLatency,
     ColumnTitleMergeableSegment,
-    ColumnTitleProcessorType,
-    ColumnTitleSegmentsActive
+    ColumnTitleProcessorType
 } from "../../messages";
 import {ProcessorActions} from "./actions/ProcesorActions";
 import {ReleaseAction} from "./actions/ReleaseAction";
-import {NodeDetailData, ProcessorOverviewData, SegmentDetailData} from "./ProcessorOverviewData";
+import {NodeDetailData, ProcessorOverviewData} from "./ProcessorOverviewData";
 
 function ProcessorTable({rows}: { rows: ProcessorOverviewData[] }) {
     return (
@@ -64,6 +65,12 @@ function ProcessorTable({rows}: { rows: ProcessorOverviewData[] }) {
                                   return <Tag color={"orange"}>{text}</Tag>
                               }
                               return <Tag color={"green"}>{text}</Tag>
+                          }}/>
+            <Table.Column title={ColumnTitleCapacity} key="capacity"
+                          render={row => row.capacity > 0 ? `${row.capacity}%` : '-'}/>
+            <Table.Column title={ColumnTitleLatency} key="latency"
+                          render={row => {
+                              return latencyToText(row.latency);
                           }}/>
             <Table.Column title="Warnings" key="warnings"
                           render={row => {
@@ -121,6 +128,22 @@ function ProcessorTable({rows}: { rows: ProcessorOverviewData[] }) {
     );
 }
 
+function latencyToText(latency: number) {
+    if (latency < 0) {
+        return "-"
+    }
+    if (latency > 1000 * 60 * 60) {
+        return (Math.round(latency / 3600000 * 10) / 10) + "hrs"
+    }
+    if (latency > 1000 * 60) {
+        return (Math.round(latency / 60000 * 10) / 10) + "min"
+    }
+    if (latency > 2000) {
+        return Math.round(latency / 1000) + "sec"
+    }
+    return latency !== -1 ? `${latency}ms` : '-';
+}
+
 function renderProcessorDetail(data: ProcessorOverviewData) {
     return <Table dataSource={data.nodes} pagination={false} size={"small"}
                   expandable={{expandedRowRender: row => renderSegmentDetail(row)}}>
@@ -145,9 +168,12 @@ function renderProcessorDetail(data: ProcessorOverviewData) {
                       render={row => `${row.claimedNumber} - ${row.claimedPercentage * 100}%`}/>
         <Table.Column title={ColumnTitleAvailableThreads} key="availableThreads"
                       render={row => `${row.threadsAvailable} / ${row.threadsActive + row.threadsAvailable}`}/>
-        <Table.Column title={ColumnTitleSegmentsActive} key="segmentsActive"
-                      width={300}
-                      render={row => row.claimed.map((c: SegmentDetailData) => `${c.id} (${c.percentage}%)`).join(", ")}/>
+        <Table.Column title={ColumnTitleCapacity} key="capacity"
+                      render={row => row.capacity > 0 ? `${row.capacity}%` : '-'}/>
+        <Table.Column title={ColumnTitleLatency} key="latency"
+                      render={row => {
+                          return latencyToText(row.latency);
+                      }}/>
     </Table>
 }
 

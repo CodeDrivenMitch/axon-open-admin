@@ -254,3 +254,43 @@ export const ColumnTitleDLQ = <Popover
             </Typography.Paragraph>
         </div>
     } placement={"bottom"}>DLQ <QuestionCircleOutlined/></Popover>
+
+export const ColumnTitleLatency = <Popover
+    title={<Typography.Text strong>Latency Column</Typography.Text>}
+    content={
+        <div style={messageStyling}>
+            <Typography.Paragraph>
+                This column shows the latency of an event processor handling an event since its publication.
+                A high value might indicate a performance problem. A high value is expected during a replay.
+            </Typography.Paragraph>
+
+            <Typography.Paragraph>
+                Only available when the "axon-micrometer" module is added to the application.
+            </Typography.Paragraph>
+        </div>
+    } placement={"bottom"}>Latency <QuestionCircleOutlined/></Popover>
+
+export const ColumnTitleCapacity = <Popover
+    title={<Typography.Text strong>Capacity Column</Typography.Text>}
+    content={
+        <div style={messageStyling}>
+            <Typography.Paragraph>
+                Shows the capacity of an event processor. Ranged from 0% to 100% multiplied by the number of threads
+                available.
+            </Typography.Paragraph>
+            <Typography.Paragraph>
+                For example, when you have a TrackingEventProcessor with 4 threads, capacity ranges from 0 to 400%.
+                This number is thus directly dependent on the amount of threads configured for it.
+            </Typography.Paragraph>
+
+            <Typography.Paragraph>
+                When using the PooledStreamingEventProcessor, the amount of threads available depends on the configured
+                worker pool. By default this is 4 threads, so a maximum of 400%.
+                You can decide to share this pool over multiple processors. In this case you need to sum the percentages
+                of the processors sharing the pool.
+            </Typography.Paragraph>
+            <Typography.Paragraph>
+                Only available when the "axon-micrometer" module is added to the application.
+            </Typography.Paragraph>
+        </div>
+    } placement={"bottom"}>Capacity <QuestionCircleOutlined/></Popover>

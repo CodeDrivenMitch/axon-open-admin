@@ -19,7 +19,13 @@ export interface BackendNodeInformation {
 export interface NodeProcessorState {
     name: string
     status: ProcessorStatus
-    dlq?: DlqOverviewInfo
+    dlq?: DlqOverviewInfo,
+    metrics?: EventProcessorMetrics,
+}
+
+export interface EventProcessorMetrics {
+    capacity?: number | undefined,
+    latency?: number | undefined,
 }
 
 export interface DlqOverviewInfo {

@@ -38,6 +38,8 @@ export function mapProcessorInformationToDataSource(nodeInformation: NodeInforma
                     doubleClaimedSegments: getDoubleClaimedSegments(instanceProcessors),
                     unclaimedSegments: _.sum(instanceProcessors.flatMap(i => i.status.segments.map(s => 1 / s.oneOf))) < 1
                 },
+                latency: Math.round((_.max(instanceProcessors.map(ip => ip.metrics?.latency || -1)) || -1) * 100) / 100,
+                capacity: Math.round(_.sum(instanceProcessors.map(ip => ip.metrics?.capacity || -1)) * 100 * 100) / 100,
                 nodes: instances.map(i => {
                     const status = i.processor.status;
                     return {
@@ -53,6 +55,8 @@ export function mapProcessorInformationToDataSource(nodeInformation: NodeInforma
                         claimedPercentage: _.sum(status.segments.map(s => 1 / s.oneOf)),
                         claimedNumber: status.segments.length,
                         processorType: status.type,
+                        latency: Math.round((i.processor.metrics?.latency || -1) * 100) / 100,
+                        capacity: Math.round((i.processor.metrics?.capacity || -1) * 100 * 100) / 100,
                         claimed: status.segments.map(s => ({
                                 key: s.segment,
                                 id: s.segment,
