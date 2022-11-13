@@ -5,10 +5,10 @@
     <parent>
         <groupId>com.insidion</groupId>
         <artifactId>axon-open-admin-parent</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.2.1-SNAPSHOT</version>
     </parent>
     <artifactId>axon-open-admin-frontend</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <name>Frontend</name>
 
     <properties>

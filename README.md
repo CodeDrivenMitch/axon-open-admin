@@ -1,44 +1,90 @@
 # Axon Open Admin
 
-Do you also love using [Axon Framework](https://developer.axoniq.io/axon-framework/overview) for your CQRS applications?
-I do! 
+[Axon Framework](https://developer.axoniq.io/axon-framework/overview) is one of the best CQRS/ES frameworks in the
+market today.
+And with Axon Open Admin, the management your Axon Framework application becomes much easier.
 
-AxonIQ provides Axon Server as an Event storage solution. It also provides an easy method to look into your event store
-and to manager tracking tokens for your projections. Without Axon server, this becomes a tedious, manual proces. This
-Spring Boot Starter takes care of that!
+## Features
 
-Axon Open Admin hooks into the JPA or Jdbc token store and lets you manage the containing tokens, such as splitting
-them, merging them, and starting replays. Clone the project and fire up the demo to see it in real life, or just add the
-Starter to your Spring Boot application!
+After including this Spring Boot 2 starter in your application it will allow you to:
 
-## Overview
+- Pause/resume event processor
+- Split and merge segments
+- Trigger Replays
+- Detect malfunctions and show them to you
+  - Unclaimed tokens
+  - Multiple token stores
+  - Token stealing
+  - Thread starvation in your processors
+- Easily show you metrics in the right places
+- Give you insight into how different messages correlate to each other
 
-This is the main overview of your application. It shows the tracking tokens, which node claimed it and how fast it is
-progressing through the events. You can click on the designated buttons to start certain actions.
+### Processor management
+
+This is the main overview of your application. It shows the segments that are currently being processed by what nodes.
+The screen allows you to manage each processor: start/stop the processor, split/merge segments or replay the event
+processor.
 
 ![](.github/teaser.png)
 
-The application is smart enough to determine what actions need to be taken to achieve a desired result, like you see in
-the next image.
+### Dead-Letter Queue insight and actions
+
+When a DLQ is configured for a processor, you can explore the items in the DLQ and take actions. You can delete the
+entire sequence,
+retry the entire sequence, or evict the first message of the sequence and retry the others.
+
+![](.github/dlq.png)
+
+When a DLQ is configured, starting a replay will give you the option to clear the queue. The framework does not do this
+by default.
+
+### Actions
+
+The application is smart enough to determine what actions need to be taken to achieve a desired result.
+It will show you the progress.
 
 ![](.github/commands.png)
 
-The starter has no backend and this is intentional. When it wants `node x` to do something, it will send a command as
-HTTP request aimed at that node. If it hits, great! If it doesn't, it tries again. This way the starter works without a
+### Decentralized
+
+There is no central backend that acts as a central communication node. The starter is built
+so that no additional deployment is needed in your infrastructure.
+
+The calls that are handled by the starter's backend are highly performant, allowing the front-end to poll
+in quick succession without big penalties.
+When all nodes of an application is behind a round-robin load balancer,
+it's able to pick them all up quickly.
+
+When you want to execute a certain action from the interface, the command is sent with the chosen node in mind.
+If it hits, great! If it doesn't, it tries again. This way the starter works without a
 designated backend, but all nodes need to be reachable on the base url using a round-robin load balancer.
+
+### Multiservice aware
+
+It's useful to have multiple of the services in your landscape managed by the same Axon Admin, especially if they send
+messages to each other. Axon Open Admin will provide you insight into the flow of your messages between them if you do
+so.
+
+![](.github/insight.png)
+
+By default, it will poll the service you have included the starter in.
+You can include additional ones, providing the name and one or more urls at which they can be reached.
+The syntax is `axon.admin.servers.[service_name]=[comma_separated_urls]`.
+
+```properties
+axon.admin.servers.booking=http://my-awesome-domain.com/booking/axon-admin
+axon.admin.servers.inventory=http://my-awesome-domain.com/inventory/axon-admin,http://my-awesome-domain.com/inventory2/axon-admin
+```
+
+Note that the urls must be reachable from your browser. When multiple URLs are configured, the first successful one will
+be used.
 
 ## Event Exploration
 
-You can also explore you Eventstore in Axon Admin. You can either tail the event log (last x events) or you can specify
-a date range to retrieve.
+You can also explore your Eventstore in Axon Admin. You can either tail the event log (last x events), can specify
+a date range to retrieve or find the events of your aggregate.
 
 ![](.github/eventpage.png)
-
-The date range preview also comes with an approximation how many events will be retrieved.
-
-![](.github/eventpage_filter.png)
-
-Searching inside events is currently not supported, but raise an issue if you'd like that functionality.
 
 # How to install
 
@@ -48,11 +94,12 @@ Add the following dependency to your maven project:
 <dependency>
     <groupId>com.insidion</groupId>
     <artifactId>axon-open-admin-starter</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 When your application now boots you can access the administration interface at `/(your-context-path)/axon-admin/`.
+If you are unsure, the boot log of your application will contain the precise path.
 Enjoy!
 
 We recommend configuring Spring Boot Security to secure these endpoints, as they are open to abuse.
@@ -61,11 +108,10 @@ We recommend configuring Spring Boot Security to secure these endpoints, as they
 
 There are a few things to keep in mind if you are planning on using this library:
 
-- It only supports Axon 4.5. We are currently not planning on supporting older versions, since the working of this
-  library depends on the private API of Axon Framework at the moment.
+- It only supports Axon 4.6. We are currently not planning on supporting older versions
 - There is a known issue with `spring-boot-devtools`. With devtools enabled your application will fail to boot.
-- All nodes need to be reachable from the front-end you are accessing. If some other node is behind another load
-  balancer, the application will not be able to take actions.
+- All nodes need to be reachable from the front-end you are accessing.
+  If some other node is behind another load balancer, the application will not be able to take actions.
 
 # Notable references
 
