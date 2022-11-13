@@ -10,8 +10,8 @@ import org.axonframework.eventhandling.GlobalSequenceTrackingToken
 import org.axonframework.eventhandling.TrackedEventMessage
 import org.axonframework.eventhandling.TrackingToken
 import org.axonframework.eventsourcing.eventstore.EventStore
-import org.axonframework.serialization.Serializer
 import org.axonframework.serialization.UnknownSerializedType
+import org.axonframework.serialization.json.JacksonSerializer
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -20,9 +20,9 @@ import kotlin.streams.toList
 @Service
 @ProcessingGroup("admin")
 class EventTailingService(
-    private val serializer: Serializer,
     private val eventStore: EventStore,
 ) {
+    private val serializer = JacksonSerializer.builder().build()
 
     fun getCurrentIndex(): Long {
         return eventStore.createHeadToken().position().orElse(0)
@@ -67,7 +67,11 @@ class EventTailingService(
                 it.payloadType.simpleName,
                 it.sequenceNumber,
                 globalSequence,
-                it.serializePayload(serializer, JsonNode::class.java).data
+                try {
+                    it.serializePayload(serializer, JsonNode::class.java).data
+                } catch (e: Exception) {
+                    null
+                }
             )
         }.toList()
         .sortedByDescending { it.timestamp }
@@ -78,6 +82,6 @@ class EventTailingService(
         val payloadType: String,
         val index: Long,
         val globalSequence: Long,
-        val payload: JsonNode,
+        val payload: JsonNode?,
     )
 }

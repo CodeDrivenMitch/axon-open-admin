@@ -1,19 +1,20 @@
 import {BranchesOutlined, DatabaseOutlined} from "@ant-design/icons";
 
-import {Layout, Menu, Typography} from "antd";
+import {Alert, Layout, Menu, Space, Typography} from "antd";
 import 'antd/dist/antd.css';
 import {Footer, Header} from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import React, {useCallback, useEffect} from 'react';
-import {Provider} from "react-redux";
+import {Provider, useSelector} from "react-redux";
 import {BrowserRouter, Route, useHistory, useLocation} from "react-router-dom";
 import {CommandProgressModal} from "./components/processors/commands/CommandProgressModal";
-import {contextPath} from "./context";
+import {backendServers, contextPath} from "./context";
 import {DlqPage} from "./pages/DlqPage";
 import {EventExplorer} from "./pages/EventExplorer";
 import {ManagementPage} from "./pages/ManagementPage";
 import {startEventThread, stopEventFetching} from "./redux/events/fetcher";
 import {startOverviewFetching, stopOverviewFetching,} from "./redux/overview/fetcher";
+import {offlineBackendsSelector} from "./redux/overview/slice";
 import store from "./redux/store";
 
 function AppMenu() {
@@ -53,7 +54,7 @@ function AppMenu() {
 
         <Menu.Divider/>
         <Menu.Item key={"as"}>
-            <p><a target={"_blank"} href={"https://www.axoniq.io/"}>Try Axon Server</a></p>
+            <p><a target={"_blank"} rel="noreferrer" href={"https://www.axoniq.io/"}>Try Axon Server</a></p>
         </Menu.Item>
 
     </Menu>;
@@ -80,11 +81,14 @@ function App() {
                                     minHeight: 280,
                                 }}
                             >
+                                <Space direction={"vertical"} size={"large"}>
+                                    <OfflineBackendsAlert/>
 
-                                <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
-                                <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
-                                <Route path={[`${contextPath}/events`]} exact={false}><EventExplorer/></Route>
-                                <Route path={[`${contextPath}/dlq/:name`]} exact={false}><DlqPage/></Route>
+                                    <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
+                                    <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
+                                    <Route path={[`${contextPath}/events`]} exact={false}><EventExplorer/></Route>
+                                    <Route path={[`${contextPath}/dlq/:name`]} exact={false}><DlqPage/></Route>
+                                </Space>
 
                                 <CommandProgressModal/>
                             </Layout.Content>
@@ -92,13 +96,30 @@ function App() {
                     </Layout>
                     <Footer>
                         <div style={{textAlign: 'center'}}>
-                            <span>Axon Open Admin was built by <a target="_blank" rel="noreferrer" href={"https://github.com/Morlack"}>Mitchell Herrijgers</a></span>
+                            <span>Axon Open Admin was built by <a target="_blank" rel="noreferrer"
+                                                                  href={"https://github.com/Morlack"}>Mitchell Herrijgers</a></span>
                         </div>
                     </Footer>
                 </Layout>
             </Provider>
         </BrowserRouter>
     );
+}
+
+function OfflineBackendsAlert() {
+    const offlineBackends = useSelector(offlineBackendsSelector)
+    if (offlineBackends.length > 0) {
+        return <Alert message="Offline backend servers" type="warning" showIcon
+                      description={<div>
+                          Data might be incomplete because the following backends are could not be reached:
+                          <ul>
+                              {offlineBackends.map(be => <li key={be}>{be}: {backendServers[be]}</li>)}
+                          </ul>
+                      </div>}>
+        </Alert>
+    }
+
+    return <></>
 }
 
 export default App;

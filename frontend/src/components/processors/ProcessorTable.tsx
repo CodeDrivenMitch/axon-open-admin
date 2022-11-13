@@ -1,5 +1,4 @@
 import {Popover, Space, Table, Tag, Typography} from "antd";
-import _ from "lodash";
 import React from "react";
 import {Link} from "react-router-dom";
 import {
@@ -18,13 +17,10 @@ import {ReleaseAction} from "./actions/ReleaseAction";
 import {NodeDetailData, ProcessorOverviewData, SegmentDetailData} from "./ProcessorOverviewData";
 
 function ProcessorTable({rows}: { rows: ProcessorOverviewData[] }) {
-    const services = _.uniq(rows.map(r => r.service))
     return (
         <Table dataSource={rows} pagination={false} size={"small"} expandable={{
             expandedRowRender: row => renderProcessorDetail(row),
         }}>
-            {services.length > 1 && <Table.Column title="Service" key="service"
-                                                  render={row => row.service}/>}
             <Table.Column title="Processor" key="processorName"
                           render={row => <ProcessorTitle row={row}/>}/>
             <Table.Column title="Actions" key="processorActions"
