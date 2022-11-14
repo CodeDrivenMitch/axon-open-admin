@@ -19,7 +19,8 @@ function getBackendServers() {
 
 console.log("context-path is " + getContentPath())
 export const contextPath = getContentPath()
-// @ts-ignore
+
+console.log("services is", getBackendServers())
 export const services = JSON.parse(getBackendServers()) as { [name: string]: string[] }
 
 const pathname = window.location.pathname;

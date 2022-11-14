@@ -29,7 +29,7 @@ class OpenAdminFrontendController(
             .replace("__APP_CONTEXT_PATH__", "$contextPath/$axonAdminPath")
             .replace("/static/css", "$contextPath/$axonAdminPath/static/css")
             .replace("/static/js", "$contextPath/$axonAdminPath/static/js")
-            .replace("\"__APP_BACKEND_SERVERS__\"", objectMapper.writeValueAsString(properties.servers))
+            .replace("__APP_BACKEND_SERVERS__", objectMapper.writeValueAsString(properties.servers).replace("\"", "\\\""))
 
     }
 }

@@ -101,12 +101,12 @@ export function EventExplorer() {
                         constantly tail for new events that were published to the event store. You can also tail a
                         specific aggregate's events.
                     </p>
-                    {Object.keys(services).length > 1 && <Form.Item label="Backend" name="backend">
+                    <Form.Item label="Backend" name="backend">
                         <Radio.Group>
                             {Object.keys(services).map(server => <Radio.Button key={server}
                                                                                value={server}>{server}</Radio.Button>)}
                         </Radio.Group>
-                    </Form.Item>}
+                    </Form.Item>
                     <Form.Item label="Explorer type" name="type">
                         <Radio.Group>
                             <Radio.Button value="tailing">Tail</Radio.Button>

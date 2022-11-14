@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.ApplicationContext
+import java.util.Collections.singletonList
 
 @ConfigurationProperties(prefix = "axon.admin")
 class AxonAdminProperties(
     val baseUrl: String = "axon-admin",
-    val servers: MutableMap<String, String> = HashMap()
+    val servers: MutableMap<String, List<String>> = HashMap()
 ) {
     lateinit var component: String
 
@@ -25,6 +26,6 @@ class AxonAdminProperties(
         } else {
             applicationContext.id!!.split(":")[0]
         }
-        servers[component] = "$contextPath/$baseUrl"
+        servers[component] = singletonList("$contextPath/$baseUrl")
     }
 }

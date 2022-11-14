@@ -66,7 +66,6 @@ export const tailEvents = createAsyncThunk(
     'events/get',
     async (_, {getState}) => {
         const state = (getState() as any).events as EventsSliceState;
-        console.log(state)
         if (state.configuration?.type === "aggregate") {
             const response = await fetch(`${services[state.configuration.backend]}/events/${state.configuration.aggregateId}?sinceIndex=${(state.currentIndex === null ? -1 : state.currentIndex) + 1}`, {method: 'GET'});
             if (response.ok) {
