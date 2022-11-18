@@ -1,6 +1,7 @@
 package com.insidion.axon.openadmin.insights
 
 import org.axonframework.commandhandling.CommandMessage
+import org.axonframework.deadline.DeadlineMessage
 import org.axonframework.eventhandling.EventMessage
 import org.axonframework.messaging.Message
 import org.axonframework.queryhandling.QueryMessage
@@ -35,8 +36,12 @@ data class MessageKey(
             is CommandMessage -> CommandMessage::class.simpleName!!
             is EventMessage -> EventMessage::class.simpleName!!
             is QueryMessage<*, *> -> QueryMessage::class.simpleName!!
+            is DeadlineMessage<*> -> DeadlineMessage::class.simpleName!!
             else -> message::class.simpleName!!
-        }, message.payload::class.java.simpleName
+        },
+        if (message.payload != null) {
+            message.payload::class.simpleName!!
+        } else "null"
     )
 }
 
