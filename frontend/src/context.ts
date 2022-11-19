@@ -23,6 +23,21 @@ export const contextPath = getContentPath()
 console.log("services is", getBackendServers())
 export const services = JSON.parse(getBackendServers()) as { [name: string]: string[] }
 
+
+export async function callService(service: string, action: (serviceUrl: string) => Promise<Response>): Promise<Response> {
+    for (const serviceUrl of services[service]) {
+        try {
+            const result = await action(serviceUrl);
+            if (result.ok) {
+                return result;
+            }
+        } catch (e) {
+            // Do nothing
+        }
+    }
+    throw new Error("No service url returned a successful statuscode");
+}
+
 const pathname = window.location.pathname;
 const realUrl = pathname.startsWith(contextPath) ? pathname.substr(contextPath.length + 1) : pathname
 

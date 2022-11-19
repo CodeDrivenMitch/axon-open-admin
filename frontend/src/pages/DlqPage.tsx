@@ -1,10 +1,10 @@
-import {DeleteOutlined, FastForwardOutlined, RedoOutlined} from "@ant-design/icons";
-import {Button, Card, message, Popconfirm, Popover, Table} from "antd";
+import {ArrowLeftOutlined, DeleteOutlined, FastForwardOutlined, RedoOutlined} from "@ant-design/icons";
+import {Button, Card, message, Popconfirm, Popover, Space, Table} from "antd";
 import ButtonGroup from "antd/es/button/button-group";
 import moment from "moment";
 import React, {useCallback, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
-import {contextPath} from "../context";
+import {useHistory, useParams} from "react-router-dom";
+import {callService} from "../context";
 
 interface DlqItem {
     sequence: string;
@@ -15,26 +15,44 @@ interface DlqItem {
 }
 
 export function DlqPage() {
-    const {name} = useParams() as { name: string };
+    const history = useHistory();
+    const {service, name} = useParams() as { service: string, name: string };
     const [sequences, setSequences] = useState(null as DlqItem[] | null)
     const [error, setError] = useState(false)
     const [fetching, setFetching] = useState(true)
+    const [lstUpdated, setLastUpdated] = useState(null as Date | null)
 
-    const fetchPage = useCallback(() => {
-        setFetching(true);
-        fetch(`${contextPath}/dlq/items/${name}`, {method: 'GET'})
-            .then(value => {
-                value.json().then(json => setSequences(json))
-                setFetching(false)
-            }, reason => setError(true));
+    const fetchPage = useCallback(async (setLoading: boolean = true) => {
+        if (setLoading) {
+            setFetching(true);
+        }
+        try {
+            const response = await callService(service, async (serviceUrl) => {
+                return await fetch(`${serviceUrl}/dlq/items/${name}`, {method: 'GET'})
+            })
+            setSequences(await response.json());
+            setLastUpdated(new Date());
+        } catch (e) {
+            setSequences([]);
+            setError(true);
+            setLastUpdated(null);
+        }
+
+        setFetching(false)
     }, [setFetching, name])
 
     useEffect(() => {
+        const interval = setInterval(() => {
+            fetchPage(false);
+        }, 2000)
         fetchPage();
+        return () => {
+            clearInterval(interval);
+        }
     }, [fetchPage])
 
     const retryCallback = useCallback((sequence) => {
-        fetch(`${contextPath}/dlq/items/${name}/${sequence}/retry`, {method: 'POST'})
+        callService(service, serviceUrl => fetch(`${serviceUrl}/dlq/items/${name}/${sequence}/retry`, {method: 'POST'}))
             .then(value => {
                 if (value.ok) {
                     message.info('Sequence ' + sequence + ' has successfully been retried');
@@ -45,7 +63,7 @@ export function DlqPage() {
             });
     }, [name, fetchPage])
     const evictFirstCallback = useCallback((sequence) => {
-        fetch(`${contextPath}/dlq/items/${name}/${sequence}/evict/first`, {method: 'POST'})
+        callService(service, serviceUrl => fetch(`${serviceUrl}/dlq/items/${name}/${sequence}/evict/first`, {method: 'POST'}))
             .then(value => {
                 if (value.ok) {
                     message.info('Sequence ' + sequence + ' has had first message evicted and retried successfully');
@@ -56,7 +74,7 @@ export function DlqPage() {
             });
     }, [name, fetchPage])
     const evictAllCallback = useCallback((sequence) => {
-        fetch(`${contextPath}/dlq/items/${name}/${sequence}/evict/all`, {method: 'POST'})
+        callService(service, serviceUrl => fetch(`${serviceUrl}/dlq/items/${name}/${sequence}/evict/all`, {method: 'POST'}))
             .then(value => {
                 if (value.ok) {
                     message.info('Sequence ' + sequence + ' has had  all messages evicted');
@@ -67,7 +85,10 @@ export function DlqPage() {
             });
     }, [name, fetchPage])
 
-    return <Card title={<div>Dead letter Queue: {name}</div>}>
+    return <Card title={<Space direction={"horizontal"}>
+        <Button onClick={() => history.goBack()}><ArrowLeftOutlined/></Button>
+        Dead letter Queue: {name} {lstUpdated && <>(Last
+        updated: {moment(lstUpdated).format("DD-MM-YYYY HH:mm:ss")})</>}</Space>}>
         {error ? 'An error occurred while fetching the DLQ. Please try again.' : ''}
         {!error && <div>
             <Table dataSource={sequences || []} rowKey={"sequence"}

@@ -90,7 +90,7 @@ function App() {
                                     <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
                                     <Route path={`${contextPath}/stats`}><MessageStatsPage/></Route>
                                     <Route path={[`${contextPath}/events`]} exact={false}><EventExplorer/></Route>
-                                    <Route path={[`${contextPath}/dlq/:name`]} exact={false}><DlqPage/></Route>
+                                    <Route path={[`${contextPath}/dlq/:service/:name`]} exact={false}><DlqPage/></Route>
                                 </Space>
 
                                 <CommandProgressModal/>

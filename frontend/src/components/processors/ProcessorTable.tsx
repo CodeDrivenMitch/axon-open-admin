@@ -222,7 +222,7 @@ function ProcessorDlq({row}: { row: ProcessorOverviewData }) {
     return <Popover
         content={<p>This processor has a DLQ configured, which currently holds items. Click to show them.</p>}
         placement={"bottom"}>
-        <Tag color="red"><Link to={"dlq/" + row.processorName}>{row.dlqSize}</Link></Tag>
+        <Tag color="red"><Link to={"dlq/" + row.service + "/" + row.processorName}>{row.dlqSize}</Link></Tag>
     </Popover>
 }
 
