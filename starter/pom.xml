@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.insidion</groupId>
         <artifactId>axon-open-admin-parent</artifactId>
-        <version>0.2.3-SNAPSHOT</version>
+        <version>0.2.4-SNAPSHOT</version>
     </parent>
     <artifactId>axon-open-admin-starter</artifactId>
 
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.2.4-SNAPSHOT</version>
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>

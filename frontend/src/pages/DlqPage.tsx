@@ -39,7 +39,7 @@ export function DlqPage() {
         }
 
         setFetching(false)
-    }, [setFetching, name])
+    }, [setFetching, name, service])
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -61,7 +61,7 @@ export function DlqPage() {
                 }
                 fetchPage()
             });
-    }, [name, fetchPage])
+    }, [name, fetchPage, service])
     const evictFirstCallback = useCallback((sequence) => {
         callService(service, serviceUrl => fetch(`${serviceUrl}/dlq/items/${name}/${sequence}/evict/first`, {method: 'POST'}))
             .then(value => {
@@ -72,7 +72,7 @@ export function DlqPage() {
                 }
                 fetchPage()
             });
-    }, [name, fetchPage])
+    }, [name, fetchPage, service])
     const evictAllCallback = useCallback((sequence) => {
         callService(service, serviceUrl => fetch(`${serviceUrl}/dlq/items/${name}/${sequence}/evict/all`, {method: 'POST'}))
             .then(value => {
@@ -83,7 +83,7 @@ export function DlqPage() {
                 }
                 fetchPage()
             });
-    }, [name, fetchPage])
+    }, [name, fetchPage, service])
 
     return <Card title={<Space direction={"horizontal"}>
         <Button onClick={() => history.goBack()}><ArrowLeftOutlined/></Button>
