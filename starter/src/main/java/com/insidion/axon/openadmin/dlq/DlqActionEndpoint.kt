@@ -3,6 +3,9 @@ package com.insidion.axon.openadmin.dlq
 import com.fasterxml.jackson.databind.JsonNode
 import com.insidion.axon.openadmin.EndpointService
 import org.axonframework.config.EventProcessingConfiguration
+import org.axonframework.eventhandling.EventMessage
+import org.axonframework.eventhandling.async.SequencingPolicy
+import org.axonframework.messaging.Message
 import org.axonframework.serialization.Serializer
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
@@ -30,7 +33,7 @@ class DlqActionEndpoint(
             val list = it.toList()
             val i = list.first()
             val firstMessage = i.message()
-            val sequence = sequencingPolicy.getSequenceIdentifierFor(firstMessage)?.toString() ?: i.message().identifier
+            val sequence = sequencingPolicy.getNullableIdentifier(firstMessage)
             DlqItem(
                 sequence,
                 list.size,
@@ -52,7 +55,7 @@ class DlqActionEndpoint(
         val dlq = eventProcessingConfiguration.sequencedDeadLetterProcessor(processorName)
             .orElseThrow { IllegalArgumentException("There is no dlq configured for processor $processorName") }
         val sequencingPolicy = eventProcessingConfiguration.sequencingPolicy(processorName)
-        val result = dlq.process { sequencingPolicy.getSequenceIdentifierFor(it.message()) == sequence }
+        val result = dlq.process { sequencingPolicy.getNullableIdentifier(it.message()) == sequence }
 
         if (result) {
             return ResponseEntity.ok().build()
@@ -87,4 +90,7 @@ class DlqActionEndpoint(
         else serializer.serialize(this, String::class.java).data
     }
 
+    private fun SequencingPolicy<in EventMessage<*>>.getNullableIdentifier(message: EventMessage<*>): String {
+        return getSequenceIdentifierFor(message)?.toString() ?: message.identifier
+    }
 }
