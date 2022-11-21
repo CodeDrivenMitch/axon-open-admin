@@ -30,7 +30,7 @@ class DlqActionEndpoint(
             val list = it.toList()
             val i = list.first()
             val firstMessage = i.message()
-            val sequence = sequencingPolicy.getSequenceIdentifierFor(firstMessage).toString()
+            val sequence = sequencingPolicy.getSequenceIdentifierFor(firstMessage)?.toString() ?: i.message().identifier
             DlqItem(
                 sequence,
                 list.size,
