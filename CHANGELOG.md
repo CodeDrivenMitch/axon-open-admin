@@ -1,10 +1,17 @@
 # Changelog
 
+## 0.2.5
+
+- Fix exception when setting base url (thanks @oysteing!)
+- Fix ClassNotFoundException in EventTailingService when excluding the axon server module
+
 ## 0.2.4
-- Fix bug in DLQ when the `SequencingPolicy` returns a null value. 
-Will not default to the message identifier.
+
+- Fix bug in DLQ when the `SequencingPolicy` returns a null value.
+  Will not default to the message identifier.
 
 ## 0.2.3
+
 - Fix bug in DLQ page. It was not aware of the multiservice feature introduced in 0.2.0.
 - Add information to DLQ page header to indicate when it was last refreshed. Added a back button as well.
 

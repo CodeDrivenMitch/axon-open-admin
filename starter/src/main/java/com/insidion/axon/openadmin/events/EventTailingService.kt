@@ -1,12 +1,10 @@
 package com.insidion.axon.openadmin.events
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.axonframework.axonserver.connector.event.axon.AxonServerEventStore
+import com.insidion.axon.openadmin.TokenProvider
 import org.axonframework.config.ProcessingGroup
 import org.axonframework.eventhandling.DomainEventMessage
 import org.axonframework.eventhandling.EventMessage
-import org.axonframework.eventhandling.GapAwareTrackingToken
-import org.axonframework.eventhandling.GlobalSequenceTrackingToken
 import org.axonframework.eventhandling.TrackedEventMessage
 import org.axonframework.eventhandling.TrackingToken
 import org.axonframework.eventsourcing.eventstore.EventStore
@@ -21,6 +19,7 @@ import kotlin.streams.toList
 @ProcessingGroup("admin")
 class EventTailingService(
     private val eventStore: EventStore,
+    private val tokenProvider: TokenProvider,
 ) {
     private val serializer = JacksonSerializer.builder().build()
 
@@ -43,12 +42,7 @@ class EventTailingService(
         return mapEvents(items)
     }
 
-    private fun createToken(index: Long): TrackingToken {
-        if (eventStore is AxonServerEventStore) {
-            return GlobalSequenceTrackingToken(index)
-        }
-        return GapAwareTrackingToken.newInstance(index, emptyList())
-    }
+    private fun createToken(index: Long): TrackingToken = tokenProvider.provideTokenForIndex(index)
 
     fun getEvents(aggregateIdentifier: String, sequence: Long): List<CaughtEvent> {
         return mapEvents(eventStore.readEvents(aggregateIdentifier, sequence).asStream().toList())
