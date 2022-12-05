@@ -5,6 +5,5 @@ import java.lang.management.ManagementFactory
 
 @Component
 class NodeIdProvider {
-    private val nodeId by lazy { ManagementFactory.getRuntimeMXBean().name }
-    fun getNodeId() = nodeId
+    val nodeId: String by lazy { ManagementFactory.getRuntimeMXBean().name }
 }

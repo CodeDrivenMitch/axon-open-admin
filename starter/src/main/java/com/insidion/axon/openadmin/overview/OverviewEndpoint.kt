@@ -29,7 +29,7 @@ class OverviewEndpoint(
         val dlqOverview = dlqInformationService.getOverview()
         val metrics = metricsProvider.provide()
         Overview(
-            nodeId = nodeIdProvider.getNodeId(),
+            nodeId = nodeIdProvider.nodeId,
             service = axonAdminProperties.component,
             processors = processorStatusService.getStatus().map {
                 ProcessorOverview(
