@@ -1,5 +1,6 @@
 package com.insidion.axon.openadmin
 
+import org.axonframework.eventhandling.GapAwareTrackingToken
 import org.axonframework.eventhandling.GlobalSequenceTrackingToken
 import org.axonframework.eventhandling.TrackingToken
 import org.axonframework.eventsourcing.eventstore.EventStorageEngine
@@ -15,6 +16,6 @@ class TokenProvider(val eventStore: EventStore, val eventStorageEngine: EventSto
         if (eventStorageEngine?.javaClass?.simpleName?.equals("MongoEventStorageEngine") == true) {
             throw IllegalArgumentException("Mongo is currently not supported in the event page of Axon Open Admin due to its different token structure!")
         }
-        return GlobalSequenceTrackingToken(index)
+        return GapAwareTrackingToken.newInstance(index, emptyList())
     }
 }
