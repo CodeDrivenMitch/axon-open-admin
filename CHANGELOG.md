@@ -2,6 +2,11 @@
 
 ## 0.2.5
 
+- Fix TokenProvider returning wrong token for JDBC and JPA
+- Improve NodeIdProvider to only calculate its value lazily
+
+## 0.2.5
+
 - Fix exception when setting base url (thanks @oysteing!)
 - Fix ClassNotFoundException in EventTailingService when excluding the axon server module
 
