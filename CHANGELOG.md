@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.2.5
+## 0.2.7
+
+- Fix issue with DLQ url not always redirecting to the right location
+
+## 0.2.6
 
 - Fix TokenProvider returning wrong token for JDBC and JPA
 - Improve NodeIdProvider to only calculate its value lazily
