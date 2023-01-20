@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.8
+
+- Fix NPE when event store is empty (#47)
+- Fix Spring bootstrap error (possibly) by removing default null parameter (#47)
+- Fix InsightHandlerEnhancer preventing replay due to no started UoW. Fixes #49
+- Fix NPE if resource is missing in unit of work. Fixes #46
+
 ## 0.2.7
 
 - Fix issue with DLQ url not always redirecting to the right location
