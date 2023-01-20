@@ -7,9 +7,12 @@ import org.axonframework.messaging.MessageDispatchInterceptor
 import org.axonframework.messaging.unitofwork.CurrentUnitOfWork
 import org.axonframework.queryhandling.QueryBus
 import org.springframework.stereotype.Component
-import java.util.LinkedList
+import java.util.*
 import java.util.function.BiFunction
 import javax.annotation.PostConstruct
+
+private const val DISPATCHED_MESSAGES = "__AXON_ADMIN_DISPATCHED_MESSAGES"
+private const val HANDLER = "__AXON_OPEN_ADMIN_HANDLER"
 
 @Component
 class InsightDispatchInterceptor(
@@ -27,22 +30,24 @@ class InsightDispatchInterceptor(
 
     override fun handle(messages: MutableList<out Message<*>>): BiFunction<Int, Message<*>, Message<*>> {
         if (!CurrentUnitOfWork.isStarted()) {
-            return BiFunction { _, message ->
-                insightRegistrationService.reportOriginMessage(MessageKey(message))
-                message
-            }
+            return originDispatchInterceptor
         }
-        val publishedMessages = CurrentUnitOfWork.get()
-            .getOrComputeResource("__AXON_ADMIN_DISPATCHED_MESSAGES") { LinkedList<MessageKey>() }
-        CurrentUnitOfWork.get().onCommit {
-            insightRegistrationService.reportHandlerMessagesPublished(
-                CurrentUnitOfWork.get().getResource("__AXON_OPEN_ADMIN_HANDLER") as Handler, publishedMessages
-            )
-        }
+        val uow = CurrentUnitOfWork.get()
+        val handler = uow.getResource(HANDLER) as Handler? ?: return originDispatchInterceptor
+        val publishedMessages = uow.getOrComputeResource(DISPATCHED_MESSAGES) { LinkedList<MessageKey>() }
         return BiFunction { _, message ->
             publishedMessages.add(MessageKey(message))
+            uow.onCommit {
+                insightRegistrationService.reportHandlerMessagesPublished(handler, publishedMessages)
+            }
+
             message
         }
+    }
+
+    private val originDispatchInterceptor = BiFunction<Int, Message<*>, Message<*>> { _, message ->
+        insightRegistrationService.reportOriginMessage(MessageKey(message))
+        message
     }
 
 }
