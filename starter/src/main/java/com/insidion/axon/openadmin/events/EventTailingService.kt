@@ -24,7 +24,7 @@ class EventTailingService(
     private val serializer = JacksonSerializer.builder().build()
 
     fun getCurrentIndex(): Long {
-        return eventStore.createHeadToken().position().orElse(0)
+        return eventStore.createHeadToken()?.position()?.orElse(0) ?: 0
     }
 
     fun getIndexAt(instant: Instant): Long {
