@@ -23,6 +23,9 @@ class InsightHandlerEnhancer(
 
         return object : WrappedMessageHandlingMember<T>(original) {
             override fun handle(message: Message<*>, target: T?): Any? {
+                if (!CurrentUnitOfWork.isStarted()) {
+                    return super.handle(message, target)
+                }
                 val handler = Handler(
                     MessageKey(message),
                     declaringClass()::class.java.simpleName,
