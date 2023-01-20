@@ -8,7 +8,7 @@ import org.axonframework.eventsourcing.eventstore.EventStore
 import org.springframework.stereotype.Component
 
 @Component
-class TokenProvider(val eventStore: EventStore, val eventStorageEngine: EventStorageEngine? = null) {
+class TokenProvider(val eventStore: EventStore, val eventStorageEngine: EventStorageEngine?) {
     fun provideTokenForIndex(index: Long): TrackingToken {
         if (eventStore.javaClass.simpleName.equals("AxonServerEventStore")) {
             return GlobalSequenceTrackingToken(index)
