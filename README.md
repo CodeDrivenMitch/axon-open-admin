@@ -4,6 +4,9 @@
 market today.
 And with Axon Open Admin, the management your Axon Framework application becomes much easier.
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.insidion/axon-open-admin-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.insidion/axon-open-admin-starter)
+
+
 ## Features
 
 After including this Spring Boot 2 starter in your application it will allow you to:
