@@ -1,11 +1,12 @@
 package com.insidion.axon.openadmin.insights
 
 import org.springframework.stereotype.Service
+import java.util.concurrent.ConcurrentHashMap
 
 @Service
 class InsightRegistrationService {
-    private val originMessages: MutableMap<MessageKey, Int> = HashMap()
-    private val handlers: MutableMap<Handler, HandlerStats> = HashMap()
+    private val originMessages: MutableMap<MessageKey, Int> = ConcurrentHashMap()
+    private val handlers: MutableMap<Handler, HandlerStats> = ConcurrentHashMap()
 
     fun getOverview() = InsightOverview(
         handlers.map { HandlerOverview(it.key, it.value) },
