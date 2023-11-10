@@ -9,7 +9,7 @@ import org.axonframework.queryhandling.QueryBus
 import org.springframework.stereotype.Component
 import java.util.*
 import java.util.function.BiFunction
-import javax.annotation.PostConstruct
+import jakarta.annotation.PostConstruct
 
 private const val DISPATCHED_MESSAGES = "__AXON_ADMIN_DISPATCHED_MESSAGES"
 private const val HANDLER = "__AXON_OPEN_ADMIN_HANDLER"
