@@ -9,7 +9,7 @@ And with Axon Open Admin, the management your Axon Framework application becomes
 
 ## Features
 
-After including this Spring Boot 2 starter in your application it will allow you to:
+After including this Spring Boot 3 starter in your application it will allow you to:
 
 - Pause/resume event processor
 - Split and merge segments
