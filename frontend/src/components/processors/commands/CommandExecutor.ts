@@ -78,7 +78,7 @@ export async function executeCommands(commands: TokenCommand[]) {
             }
         }
 
-        if (result !== null && result.ok) {
+        if (result !== null && result.ok && result.status === 200) {
             // Ignore 204, this means it's the wrong node
             commandTodo.success = true
             commandTodo.loading = false
