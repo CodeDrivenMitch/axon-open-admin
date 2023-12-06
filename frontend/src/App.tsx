@@ -85,6 +85,7 @@ function App() {
                             >
                                 <Space direction={"vertical"} size={"large"}>
                                     <OfflineBackendsAlert/>
+                                    <AxoniqConsoleAlert/>
 
                                     <Route path={`${contextPath}/`} exact><ManagementPage/></Route>
                                     <Route path={`${contextPath}/tokens`}><ManagementPage/></Route>
@@ -100,7 +101,7 @@ function App() {
                     <Footer>
                         <div style={{textAlign: 'center'}}>
                             <span>Axon Open Admin was built by <a target="_blank" rel="noreferrer"
-                                                                  href={"https://github.com/Morlack"}>Mitchell Herrijgers</a></span>
+                                                                  href={"https://code-driven-mitch.dev"}>Mitchell Herrijgers</a></span>
                         </div>
                     </Footer>
                 </Layout>
@@ -123,6 +124,17 @@ function OfflineBackendsAlert() {
     }
 
     return <></>
+}
+
+function AxoniqConsoleAlert() {
+    return <Alert message="AxonIQ Console" type="info" showIcon
+                  description={<div>
+                      Have you tried <a target="_blank" rel="noreferrer"
+                                        href={"https://www.axoniq.io/products/axoniq-console"}>Axoniq Console</a>? It's
+                      your one-stop-shop for all your Axon needs. It includes anything Axon Open Admin provides, and
+                      much more. Event processor load balancing, persistent metrics, message diagrams, autoscaling and
+                      much more. Check it out!
+                  </div>}/>
 }
 
 export default App;

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+- Spring Boot 3 compatibility
+- Add message about AxonIQ Console, as this is where new developments will be
+
 ## 0.2.8
 
 - Fix NPE when event store is empty (#47)

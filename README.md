@@ -6,6 +6,7 @@ And with Axon Open Admin, the management your Axon Framework application becomes
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.insidion/axon-open-admin-starter/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.insidion/axon-open-admin-starter)
 
+Spring Boot 3 is supported by 0.3.0 and up. For Spring Boot 2, use 0.2.8.
 
 ## Features
 
