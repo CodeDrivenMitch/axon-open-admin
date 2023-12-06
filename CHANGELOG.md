@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.1
+- Fix broken command status checking on clustered backends, thanks to @oysteing
+
 ## 0.3.0
 - Spring Boot 3 compatibility
 - Add message about AxonIQ Console, as this is where new developments will be
