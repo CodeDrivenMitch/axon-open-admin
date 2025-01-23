@@ -2,10 +2,11 @@ package com.insidion.axon.openadmin.insights
 
 import org.springframework.stereotype.Service
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class InsightRegistrationService {
-    private val originMessages: MutableMap<MessageKey, Int> = ConcurrentHashMap()
+    private val originMessages: MutableMap<MessageKey, AtomicInteger> = ConcurrentHashMap()
     private val handlers: MutableMap<Handler, HandlerStats> = ConcurrentHashMap()
 
     fun getOverview() = InsightOverview(
@@ -14,23 +15,22 @@ class InsightRegistrationService {
     )
 
     fun reportOriginMessage(handler: MessageKey) {
-        val current = originMessages.computeIfAbsent(handler) { 0 }
-        originMessages[handler] = current + 1
+        originMessages.computeIfAbsent(handler) { AtomicInteger(0) }.incrementAndGet()
     }
 
     fun reportHandlerSuccess(handler: Handler) {
-        handlers.computeIfAbsent(handler) { HandlerStats() }.successCounter += 1
+        handlers.computeIfAbsent(handler) { HandlerStats() }.successCounter.incrementAndGet()
     }
 
     fun reportHandlerMessagesPublished(handler: Handler, messages: List<MessageKey>) {
         val map = handlers.computeIfAbsent(handler) { HandlerStats() }.publishedMessages
         messages.forEach { m ->
             map.computeIfAbsent(m) { PublishedMessageStats(m) }
-                .count += 1
+                .count.incrementAndGet()
         }
     }
 
     fun reportHandlerRollback(handler: Handler) {
-        handlers.computeIfAbsent(handler) { HandlerStats() }.failureCounter += 1
+        handlers.computeIfAbsent(handler) { HandlerStats() }.failureCounter.incrementAndGet()
     }
 }

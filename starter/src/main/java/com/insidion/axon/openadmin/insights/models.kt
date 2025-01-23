@@ -5,6 +5,8 @@ import org.axonframework.deadline.DeadlineMessage
 import org.axonframework.eventhandling.EventMessage
 import org.axonframework.messaging.Message
 import org.axonframework.queryhandling.QueryMessage
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 
 data class InsightOverview(
     val handlers: List<HandlerOverview>,
@@ -18,7 +20,7 @@ data class HandlerOverview(
 
 data class OriginMessageOverview(
     val message: MessageKey,
-    val count: Int,
+    val count: AtomicInteger = AtomicInteger(0),
 )
 
 data class Handler(
@@ -46,12 +48,12 @@ data class MessageKey(
 }
 
 data class HandlerStats(
-    var successCounter: Int = 0,
-    var failureCounter: Int = 0,
-    val publishedMessages: MutableMap<MessageKey, PublishedMessageStats> = HashMap()
+    var successCounter: AtomicInteger = AtomicInteger(0),
+    var failureCounter: AtomicInteger = AtomicInteger(0),
+    val publishedMessages: MutableMap<MessageKey, PublishedMessageStats> = ConcurrentHashMap()
 )
 
 data class PublishedMessageStats(
     val message: MessageKey,
-    var count: Int = 0
+    var count: AtomicInteger = AtomicInteger(0)
 )
