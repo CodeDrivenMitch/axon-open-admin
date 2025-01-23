@@ -1,9 +1,17 @@
 # Changelog
 
+
+## 0.3.2
+
+- Update commons-io to fix vulnerability, thanks to @oysteing (#65)
+- Implement better concurrency support, thanks to @stoerti (#63)
+
 ## 0.3.1
+
 - Fix broken command status checking on clustered backends, thanks to @oysteing
 
 ## 0.3.0
+
 - Spring Boot 3 compatibility
 - Add message about AxonIQ Console, as this is where new developments will be
 
